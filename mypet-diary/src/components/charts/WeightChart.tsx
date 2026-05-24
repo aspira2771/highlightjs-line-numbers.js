@@ -51,8 +51,8 @@ export function WeightChart({ records }: Props) {
             stroke="#8A8A8A"
             fontSize={11}
             domain={['dataMin - 0.2', 'dataMax + 0.2']}
-            tickFormatter={(v: number) => `${v}kg`}
-            width={48}
+            tickFormatter={(v: number) => `${v.toFixed(1)}kg`}
+            width={52}
           />
           <Tooltip
             contentStyle={{

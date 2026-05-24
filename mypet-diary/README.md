@@ -19,6 +19,18 @@ npm run build      # 타입 체크 + 프로덕션 빌드
 npm run preview    # 빌드 결과 미리보기
 ```
 
+## 모바일 앱 (iOS / Android)
+
+Capacitor로 iOS와 Android에서 네이티브 앱처럼 동작합니다.
+
+```bash
+npm run build && npx cap sync     # 웹 자산을 네이티브 프로젝트로 복사
+npx cap open android              # Android Studio
+npx cap open ios                  # Xcode (macOS 전용)
+```
+
+자세한 빌드/배포 절차는 [`MOBILE.md`](./MOBILE.md)를 참고하세요.
+
 ## 기술 스택
 
 - React 18 + TypeScript + Vite
