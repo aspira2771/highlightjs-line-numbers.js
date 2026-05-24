@@ -59,15 +59,15 @@ export function RecordsPage() {
       <PageHeader title="기록" subtitle={`${activePet.name}의 건강 기록`} />
       <PetSwitcher />
 
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-2">
+      <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`shrink-0 rounded-pill px-4 py-1.5 text-sm font-semibold transition ${
+            className={`shrink-0 rounded-pill border px-4 py-1.5 text-[13px] font-medium transition ${
               tab === t.id
-                ? 'bg-primary text-white'
-                : 'bg-white text-muted'
+                ? 'border-primary bg-primary text-white'
+                : 'border-line bg-surface text-ink-soft hover:border-primary-200'
             }`}
           >
             {t.label}
@@ -81,7 +81,7 @@ export function RecordsPage() {
             <WeightChart records={weights} />
           </Card>
           {advisory && (
-            <div className="mt-3 rounded-soft border border-primary-100 bg-primary-50 p-3 text-xs text-primary-500">
+            <div className="mt-3 rounded-soft border border-primary-200 bg-primary-50 p-3.5 text-[12px] leading-relaxed text-primary-600">
               {advisory}
             </div>
           )}
@@ -98,7 +98,7 @@ export function RecordsPage() {
                     </p>
                   </div>
                   <button
-                    className="text-xs text-red-500"
+                    className="text-[11px] text-muted hover:text-red-600"
                     onClick={() => records.removeWeight(w.id)}
                   >
                     삭제
@@ -138,7 +138,7 @@ export function RecordsPage() {
                     {m.note && <p className="mt-1 text-sm">{m.note}</p>}
                   </div>
                   <button
-                    className="text-xs text-red-500"
+                    className="text-[11px] text-muted hover:text-red-600"
                     onClick={() => records.removeMeal(m.id)}
                   >
                     삭제
@@ -175,7 +175,7 @@ export function RecordsPage() {
                     {w.note && <p className="mt-1 text-sm">{w.note}</p>}
                   </div>
                   <button
-                    className="text-xs text-red-500"
+                    className="text-[11px] text-muted hover:text-red-600"
                     onClick={() => records.removeWalk(w.id)}
                   >
                     삭제
@@ -243,7 +243,7 @@ export function RecordsPage() {
                   {typeof s.remainingCount === 'number' &&
                     typeof s.alertThreshold === 'number' &&
                     s.remainingCount <= s.alertThreshold && (
-                      <p className="mt-1 text-xs text-primary-500">
+                      <p className="mt-1.5 text-[11px] text-primary-500">
                         곧 떨어져요. 재구매를 확인해보세요.
                       </p>
                     )}
@@ -262,10 +262,11 @@ export function RecordsPage() {
 
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-24 right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-card transition hover:scale-105"
+        className="fixed bottom-24 right-5 z-20 flex h-13 w-13 items-center justify-center rounded-full bg-primary text-white shadow-card transition hover:bg-primary-500 active:scale-95"
+        style={{ height: '52px', width: '52px' }}
         aria-label="기록 추가"
       >
-        <Plus size={26} />
+        <Plus size={22} strokeWidth={2.2} />
       </button>
 
       <Modal

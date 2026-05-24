@@ -60,7 +60,7 @@ export function MyPetPage() {
           return (
             <li key={pet.id}>
               <Card>
-                <div className="flex items-center gap-4">
+                <div className="flex items-start gap-4">
                   <Character
                     photoUrl={pet.photoUrl}
                     species={pet.species}
@@ -70,37 +70,37 @@ export function MyPetPage() {
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-base font-bold">{pet.name}</p>
+                      <p className="font-serif text-[18px] tracking-tightest text-ink">
+                        {pet.name}
+                      </p>
                       {pet.id === activePetId && (
-                        <span className="pill bg-primary-100 text-primary-500">
-                          활성
-                        </span>
+                        <span className="pill-solid">활성</span>
                       )}
                     </div>
-                    <p className="text-xs text-muted">
+                    <p className="mt-0.5 text-[12px] text-muted">
                       {SPECIES_LABELS[pet.species]}
                       {pet.breed && ` · ${pet.breed}`}
                       {age !== null && ` · ${age}살`}
                       {pet.weight && ` · ${pet.weight}kg`}
                     </p>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
+                  <div className="flex flex-col items-end gap-1.5 text-[12px]">
                     {pet.id !== activePetId && (
                       <button
-                        className="text-xs text-primary"
+                        className="font-medium text-primary"
                         onClick={() => setActivePet(pet.id)}
                       >
                         활성
                       </button>
                     )}
                     <button
-                      className="text-xs text-muted"
+                      className="text-muted hover:text-ink"
                       onClick={() => setEditId(pet.id)}
                     >
                       수정
                     </button>
                     <button
-                      className="text-xs text-red-500"
+                      className="text-muted hover:text-red-600"
                       onClick={() => {
                         if (confirm(`${pet.name}을 삭제할까요?`)) {
                           removePet(pet.id);
@@ -108,19 +108,20 @@ export function MyPetPage() {
                       }}
                       aria-label="삭제"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 </div>
-                <div className="mt-3 flex flex-wrap gap-1.5">
+                <div className="mt-4 flex flex-wrap gap-1.5">
                   {pet.careTemplate.map((type) => (
-                    <span key={type} className="pill bg-primary-50 text-ink">
-                      {CARE_ICONS[type]} {CARE_LABELS[type]}
+                    <span key={type} className="pill">
+                      <span className="mr-1 opacity-70">{CARE_ICONS[type]}</span>
+                      {CARE_LABELS[type]}
                     </span>
                   ))}
                 </div>
                 {pet.notes && (
-                  <p className="mt-3 rounded-soft bg-bg p-2 text-xs text-muted">
+                  <p className="mt-4 rounded-soft border border-line bg-panel/60 p-3 text-[12px] leading-relaxed text-ink-soft">
                     {pet.notes}
                   </p>
                 )}
@@ -131,11 +132,11 @@ export function MyPetPage() {
       </ul>
 
       <Card className="mt-6" title="설정">
-        <div className="space-y-3 text-sm">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-semibold">푸시 알림</p>
-              <p className="text-xs text-muted">
+              <p className="text-[14px] font-medium text-ink">푸시 알림</p>
+              <p className="mt-0.5 text-[12px] text-muted">
                 {permission === 'granted'
                   ? '켜져 있어요'
                   : permission === 'denied'
@@ -146,7 +147,7 @@ export function MyPetPage() {
               </p>
             </div>
             {permission !== 'granted' && permission !== 'unsupported' && (
-              <Button size="sm" onClick={request}>
+              <Button size="sm" variant="outline" onClick={request}>
                 허용
               </Button>
             )}
@@ -154,9 +155,10 @@ export function MyPetPage() {
         </div>
       </Card>
 
-      <p className="mt-6 text-center text-[11px] text-muted">
-        ※ 종별 케어 항목은 보호자의 기록 보조용이에요. 의학적 기준은 동물병원의
-        조언을 따라주세요.
+      <p className="mt-8 text-center text-[11px] leading-relaxed text-muted">
+        종별 케어 항목은 보호자의 기록 보조용이에요.
+        <br />
+        의학적 기준은 동물병원의 조언을 따라주세요.
       </p>
 
       <Modal

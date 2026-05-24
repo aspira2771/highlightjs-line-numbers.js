@@ -14,37 +14,37 @@ export function CareRow({ item, onToggle, onRemove }: Props) {
   return (
     <li
       className={cn(
-        'flex items-center gap-3 rounded-soft border border-transparent bg-white px-4 py-3 shadow-soft transition',
+        'group flex items-center gap-3 rounded-soft border border-line bg-surface px-4 py-3 transition hover:border-primary-200',
         item.completed && 'opacity-60',
       )}
     >
       <button
         onClick={() => onToggle(item.id)}
         className={cn(
-          'flex h-9 w-9 items-center justify-center rounded-full border-2 transition active:scale-95',
+          'flex h-8 w-8 items-center justify-center rounded-full border transition active:scale-95',
           item.completed
-            ? 'border-secondary-300 bg-secondary-300 text-white animate-pop'
-            : 'border-primary-200 bg-white text-transparent',
+            ? 'border-primary bg-primary text-white animate-pop'
+            : 'border-line bg-surface text-transparent hover:border-primary-300',
         )}
         aria-label={item.completed ? '완료 취소' : '완료'}
       >
-        <Check size={18} strokeWidth={3} />
+        <Check size={16} strokeWidth={3} />
       </button>
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-xl" aria-hidden>
+          <span className="text-base opacity-80" aria-hidden>
             {CARE_ICONS[item.type]}
           </span>
           <p
             className={cn(
-              'text-sm font-semibold text-ink',
+              'text-[14px] font-medium text-ink',
               item.completed && 'line-through',
             )}
           >
             {item.title || CARE_LABELS[item.type]}
           </p>
         </div>
-        <p className="ml-7 text-xs text-muted">
+        <p className="ml-7 text-[11px] text-muted">
           {formatKoreanTime(item.scheduledAt)}
           {item.recurrence && ' · 반복'}
         </p>
@@ -53,9 +53,9 @@ export function CareRow({ item, onToggle, onRemove }: Props) {
         <button
           aria-label="삭제"
           onClick={() => onRemove(item.id)}
-          className="rounded-full p-2 text-muted hover:bg-red-50 hover:text-red-500"
+          className="rounded-full p-2 text-muted opacity-0 transition group-hover:opacity-100 hover:bg-red-50 hover:text-red-600"
         >
-          <Trash2 size={16} />
+          <Trash2 size={14} />
         </button>
       )}
     </li>

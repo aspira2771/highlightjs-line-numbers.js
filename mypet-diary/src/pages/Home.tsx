@@ -84,7 +84,7 @@ export function HomePage() {
     <div className="page">
       <PetSwitcher />
 
-      <Card className="bg-gradient-to-br from-primary-50 to-accent-50">
+      <Card className="bg-gradient-to-b from-panel/60 to-surface">
         <div className="flex flex-col items-center text-center">
           <Character
             photoUrl={activePet.photoUrl}
@@ -93,15 +93,17 @@ export function HomePage() {
             mood={mood}
             size="lg"
           />
-          <p className="mt-4 font-hand text-lg text-ink">{message}</p>
-          <div className="mt-4 w-full">
-            <div className="mb-1 flex items-center justify-between text-xs text-muted">
+          <p className="mt-6 font-serif text-[17px] leading-snug tracking-tightest text-ink">
+            {message}
+          </p>
+          <div className="mt-5 w-full">
+            <div className="mb-2 flex items-center justify-between text-[11px] uppercase tracking-wide text-muted">
               <span>오늘의 케어</span>
-              <span>
+              <span className="font-medium text-ink-soft">
                 {completed} / {total}
               </span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-pill bg-white">
+            <div className="h-1.5 w-full overflow-hidden rounded-pill bg-line">
               <div
                 className="h-full rounded-pill bg-primary transition-all"
                 style={{ width: `${progress}%` }}
@@ -112,37 +114,41 @@ export function HomePage() {
       </Card>
 
       <div className="my-4 grid grid-cols-2 gap-3">
-        <Card className="flex items-center gap-3">
-          <Flame className="text-primary" />
+        <div className="card flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary">
+            <Flame size={18} />
+          </span>
           <div>
-            <p className="text-xs text-muted">연속 케어</p>
-            <p className="text-lg font-bold">
+            <p className="text-[11px] uppercase tracking-wide text-muted">연속 케어</p>
+            <p className="font-serif text-[18px] tracking-tightest text-ink">
               {streak?.currentDays ?? 0}일
             </p>
           </div>
-        </Card>
-        <Card className="flex items-center gap-3">
-          <Sparkles className="text-accent-200" />
+        </div>
+        <div className="card flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-50 text-accent-300">
+            <Sparkles size={18} />
+          </span>
           <div>
-            <p className="text-xs text-muted">포인트</p>
-            <p className="text-lg font-bold">{totalPoints}P</p>
+            <p className="text-[11px] uppercase tracking-wide text-muted">포인트</p>
+            <p className="font-serif text-[18px] tracking-tightest text-ink">{totalPoints}P</p>
           </div>
-        </Card>
+        </div>
       </div>
 
       {permission !== 'granted' && permission !== 'unsupported' && (
-        <Card className="mb-4 flex items-center gap-3 border border-primary-100">
-          <BellRing className="text-primary" />
+        <div className="mb-4 flex items-center gap-3 rounded-card border border-line bg-panel/50 p-4">
+          <BellRing className="text-primary" size={20} />
           <div className="flex-1">
-            <p className="text-sm font-semibold">알림을 켜주세요</p>
-            <p className="text-xs text-muted">
+            <p className="text-[14px] font-medium text-ink">알림을 켜주세요</p>
+            <p className="text-[12px] text-muted">
               {activePet.name}이 시간 맞춰 말 걸어줄 거예요.
             </p>
           </div>
           <Button size="sm" onClick={request}>
             켜기
           </Button>
-        </Card>
+        </div>
       )}
 
       <Card

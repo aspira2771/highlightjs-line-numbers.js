@@ -87,7 +87,7 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
           mood="happy"
           size="md"
         />
-        <label className="cursor-pointer rounded-pill bg-primary-50 px-4 py-2 text-xs font-semibold text-primary-500">
+        <label className="cursor-pointer rounded-soft border border-line bg-surface px-4 py-2 text-[12px] font-medium text-ink-soft transition hover:border-primary-200 hover:text-primary">
           사진 업로드
           <input
             type="file"
@@ -146,7 +146,7 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
       </div>
 
       <div>
-        <span className="mb-2 block text-sm font-medium text-ink">
+        <span className="mb-2 block text-[12px] font-medium uppercase tracking-wide text-muted">
           캐릭터 스타일
         </span>
         <div className="flex gap-2 overflow-x-auto pb-2">
@@ -155,10 +155,10 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
               key={t.id}
               type="button"
               onClick={() => setCharacterTemplate(t.id)}
-              className={`flex flex-col items-center gap-1 rounded-soft border px-3 py-2 text-xs ${
+              className={`flex flex-col items-center gap-1.5 rounded-soft border px-3 py-2 text-[11px] transition ${
                 characterTemplate === t.id
-                  ? 'border-primary bg-primary-50'
-                  : 'border-primary-100 bg-white'
+                  ? 'border-primary bg-primary-50 text-primary-500'
+                  : 'border-line bg-surface text-muted hover:border-primary-200'
               }`}
             >
               <Character

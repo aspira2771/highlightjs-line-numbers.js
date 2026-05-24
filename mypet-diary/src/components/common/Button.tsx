@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/utils/cn';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -14,17 +14,21 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClass: Record<Variant, string> = {
   primary:
-    'bg-primary text-white hover:bg-primary-400 active:bg-primary-500 shadow-soft',
+    'bg-primary text-white hover:bg-primary-500 active:bg-primary-600',
   secondary:
-    'bg-secondary-100 text-secondary-300 hover:bg-secondary-200 active:bg-secondary-300 active:text-white',
-  ghost: 'bg-transparent text-ink hover:bg-primary-50',
-  danger: 'bg-red-100 text-red-600 hover:bg-red-200',
+    'bg-panel text-ink hover:bg-line',
+  ghost:
+    'bg-transparent text-ink-soft hover:bg-panel',
+  outline:
+    'bg-surface text-ink border border-line hover:border-primary-200 hover:text-primary',
+  danger:
+    'bg-surface border border-line text-red-700 hover:bg-red-50',
 };
 
 const sizeClass: Record<Size, string> = {
-  sm: 'h-9 px-3 text-sm',
+  sm: 'h-9 px-3.5 text-[13px]',
   md: 'h-11 px-5 text-sm',
-  lg: 'h-14 px-6 text-base',
+  lg: 'h-12 px-6 text-[15px]',
 };
 
 export function Button({
@@ -41,7 +45,7 @@ export function Button({
     <button
       {...rest}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-pill font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex items-center justify-center gap-2 rounded-soft font-medium transition focus-visible:outline-none focus-visible:shadow-focus active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50',
         variantClass[variant],
         sizeClass[size],
         block && 'w-full',

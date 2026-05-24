@@ -3,11 +3,13 @@ import { cn } from '@/utils/cn';
 
 interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   title?: ReactNode;
+  subtitle?: ReactNode;
   action?: ReactNode;
 }
 
 export function Card({
   title,
+  subtitle,
   action,
   children,
   className,
@@ -16,8 +18,17 @@ export function Card({
   return (
     <div {...rest} className={cn('card', className)}>
       {(title || action) && (
-        <div className="mb-3 flex items-center justify-between">
-          {title && <h3 className="text-base font-bold text-ink">{title}</h3>}
+        <div className="mb-4 flex items-start justify-between gap-2">
+          <div>
+            {title && (
+              <h3 className="font-serif text-[17px] font-medium tracking-tightest text-ink">
+                {title}
+              </h3>
+            )}
+            {subtitle && (
+              <p className="mt-0.5 text-[12px] text-muted">{subtitle}</p>
+            )}
+          </div>
           {action}
         </div>
       )}
@@ -38,13 +49,15 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-soft bg-white/60 px-6 py-10 text-center">
-      <div className="text-4xl">{emoji}</div>
-      <p className="text-base font-bold text-ink">{title}</p>
+    <div className="flex flex-col items-center justify-center gap-2 rounded-card border border-line bg-surface px-6 py-12 text-center">
+      <div className="text-3xl">{emoji}</div>
+      <p className="font-serif text-[17px] tracking-tightest text-ink">{title}</p>
       {description && (
-        <p className="max-w-xs text-sm text-muted">{description}</p>
+        <p className="max-w-xs text-[13px] leading-relaxed text-muted">
+          {description}
+        </p>
       )}
-      {action && <div className="mt-2">{action}</div>}
+      {action && <div className="mt-3">{action}</div>}
     </div>
   );
 }

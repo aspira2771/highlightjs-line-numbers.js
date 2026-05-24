@@ -86,21 +86,23 @@ export function CalendarPage() {
         <div className="mb-3 flex items-center justify-between">
           <button
             onClick={() => setAnchor((d) => subMonths(d, 1))}
-            className="rounded-full p-1 text-muted hover:bg-primary-50"
+            className="rounded-full p-1.5 text-muted transition hover:bg-panel"
             aria-label="이전 달"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={18} />
           </button>
-          <h3 className="text-base font-bold">{monthLabel}</h3>
+          <h3 className="font-serif text-[17px] tracking-tightest text-ink">
+            {monthLabel}
+          </h3>
           <button
             onClick={() => setAnchor((d) => addMonths(d, 1))}
-            className="rounded-full p-1 text-muted hover:bg-primary-50"
+            className="rounded-full p-1.5 text-muted transition hover:bg-panel"
             aria-label="다음 달"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={18} />
           </button>
         </div>
-        <div className="mb-1 grid grid-cols-7 gap-1 text-center text-[11px] font-bold text-muted">
+        <div className="mb-2 grid grid-cols-7 gap-1 text-center text-[10px] font-medium uppercase tracking-wide text-muted">
           {['일', '월', '화', '수', '목', '금', '토'].map((d) => (
             <span key={d}>{d}</span>
           ))}
@@ -117,10 +119,11 @@ export function CalendarPage() {
                 key={day.toISOString()}
                 onClick={() => setSelected(day)}
                 className={cn(
-                  'relative aspect-square rounded-soft text-xs',
-                  inMonth ? 'text-ink' : 'text-muted/50',
-                  isSelected && 'bg-primary text-white',
-                  !isSelected && hasEvent && 'bg-primary-50',
+                  'relative aspect-square rounded-soft text-[13px] transition',
+                  inMonth ? 'text-ink' : 'text-muted/40',
+                  isSelected && 'bg-primary text-white font-medium',
+                  !isSelected && hasEvent && 'bg-panel font-medium',
+                  !isSelected && !hasEvent && 'hover:bg-panel/60',
                 )}
               >
                 <span>{day.getDate()}</span>
@@ -202,14 +205,16 @@ export function CalendarPage() {
               .slice(-3)
               .reverse()
               .map((h) => (
-                <li key={h.id} className="rounded-soft bg-primary-50 p-3">
-                  <p className="text-sm font-semibold">
+                <li key={h.id} className="rounded-soft border border-line bg-panel/50 p-3.5">
+                  <p className="text-[13px] font-medium text-ink">
                     {format(parseISO(h.visitDate), 'yyyy-MM-dd')} ·{' '}
                     {h.hospitalName}
                   </p>
-                  <p className="text-xs text-muted">{h.purpose}</p>
+                  <p className="mt-0.5 text-[11px] text-muted">{h.purpose}</p>
                   {h.diagnosis && (
-                    <p className="mt-1 text-xs">소견: {h.diagnosis}</p>
+                    <p className="mt-1.5 text-[12px] text-ink-soft">
+                      소견: {h.diagnosis}
+                    </p>
                   )}
                 </li>
               ))}
@@ -217,8 +222,8 @@ export function CalendarPage() {
         )}
       </Card>
 
-      <p className="mt-4 text-center text-[11px] text-muted">
-        ※ 진단·처방은 동물병원에서 확인해야 해요.
+      <p className="mt-5 text-center text-[11px] text-muted">
+        진단·처방은 동물병원에서 확인해야 해요.
       </p>
 
       <Modal
@@ -227,7 +232,7 @@ export function CalendarPage() {
         title="병원 방문 기록"
       >
         {medications.length > 0 && (
-          <p className="rounded-soft bg-primary-50 p-2 text-[11px] text-muted">
+          <p className="rounded-soft border border-line bg-panel/60 p-2.5 text-[11px] text-muted">
             현재 복용 중인 약: {medications.map((m) => m.name).join(', ')}
           </p>
         )}

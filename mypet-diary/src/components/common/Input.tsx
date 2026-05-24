@@ -7,13 +7,16 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
+const fieldBase =
+  'w-full rounded-soft border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink placeholder:text-muted/80 transition focus:border-primary-300 focus:outline-none focus:shadow-focus';
+
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, hint, error, className, id, ...rest }, ref) => {
     const inputId = id ?? rest.name;
     return (
       <label className="block" htmlFor={inputId}>
         {label && (
-          <span className="mb-1 block text-sm font-medium text-ink">
+          <span className="mb-1.5 block text-[12px] font-medium uppercase tracking-wide text-muted">
             {label}
           </span>
         )}
@@ -22,13 +25,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           id={inputId}
           {...rest}
           className={cn(
-            'w-full rounded-soft border border-primary-100 bg-white px-4 py-3 text-sm text-ink placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-100',
-            error && 'border-red-300 focus:ring-red-100',
+            fieldBase,
+            error && 'border-red-300 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(220,80,80,0.15)]',
             className,
           )}
         />
         {error ? (
-          <span className="mt-1 block text-xs text-red-500">{error}</span>
+          <span className="mt-1 block text-xs text-red-600">{error}</span>
         ) : hint ? (
           <span className="mt-1 block text-xs text-muted">{hint}</span>
         ) : null}
@@ -55,15 +58,14 @@ export function Textarea({
   return (
     <label className="block" htmlFor={fieldId}>
       {label && (
-        <span className="mb-1 block text-sm font-medium text-ink">{label}</span>
+        <span className="mb-1.5 block text-[12px] font-medium uppercase tracking-wide text-muted">
+          {label}
+        </span>
       )}
       <textarea
         id={fieldId}
         {...rest}
-        className={cn(
-          'w-full rounded-soft border border-primary-100 bg-white px-4 py-3 text-sm text-ink placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-100',
-          className,
-        )}
+        className={cn(fieldBase, 'leading-relaxed', className)}
       />
       {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
     </label>
@@ -86,15 +88,14 @@ export function Select({
   return (
     <label className="block" htmlFor={fieldId}>
       {label && (
-        <span className="mb-1 block text-sm font-medium text-ink">{label}</span>
+        <span className="mb-1.5 block text-[12px] font-medium uppercase tracking-wide text-muted">
+          {label}
+        </span>
       )}
       <select
         id={fieldId}
         {...rest}
-        className={cn(
-          'w-full rounded-soft border border-primary-100 bg-white px-4 py-3 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-100',
-          className,
-        )}
+        className={cn(fieldBase, className)}
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
