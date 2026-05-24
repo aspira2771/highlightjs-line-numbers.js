@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    @apply font-sans;
+  }
+}
+
+@layer components {
+  .app-shell {
+    @apply mx-auto flex h-full max-w-md flex-col bg-bg;
+  }
+
+  .page {
+    @apply flex-1 overflow-y-auto px-5 pb-28 pt-6;
+  }
+
+  .card {
+    @apply rounded-soft bg-white p-4 shadow-soft;
+  }
+
+  .pill {
+    @apply inline-flex items-center rounded-pill px-3 py-1 text-xs font-medium;
+  }
+}
