@@ -11,17 +11,17 @@
 const ENDPOINT = 'https://api.openai.com/v1/images/edits';
 
 const PROMPT =
-  'Redesign this pet as a simple, iconic 2D mascot in the minimalist flat style ' +
-  'of Korean city mascots (Seoul "Soul Friends" / Haechi). Heavily simplify and ' +
-  'abstract it into a few clean rounded geometric shapes — it should look like a ' +
-  'designed character, NOT a realistic drawing of the photo. Rules: flat solid ' +
-  'pastel colors only; NO outline or only an ultra-thin subtle line; very small ' +
-  'minimal dot or short-line eyes; tiny simple mouth; lots of negative space; ' +
-  'exaggerate just one or two cute signature traits of the animal (ears, tail, ' +
-  'spots, fang…) for personality. Charming, friendly, playful. Strictly flat 2D ' +
-  'vector art — no gradients, no shading, no texture, no drop shadow, no 3D. ' +
-  'Keep the species and main color recognizable but stylized. Single character, ' +
-  'centered, full body, generous margin, transparent background.';
+  'Redesign this pet as a quirky 2D mascot sticker with strong Korean "B급 감성" ' +
+  '(B-grade / byeongmat) humor: intentionally weird, deadpan and funny, ' +
+  'tacky-but-cool, lo-fi meme energy. NOT polished, NOT cutesy, NOT a neat ' +
+  'kindergarten drawing. Give it a deadpan / derpy expression full of ' +
+  'personality (blank stare, lazy side-eye, goofy lolling tongue or a smug ' +
+  'unimpressed look) and slightly awkward, funny exaggerated proportions. ' +
+  'Bold confident flat shapes, flat solid colors, minimal or no outline, ' +
+  'retro kitsch sticker vibe. Strictly flat 2D vector art — no gradient, no ' +
+  'shading, no texture, no drop shadow, no 3D. Keep the species and main color ' +
+  'recognizable but heavily stylized and characterful. Single character, ' +
+  'centered, full body, transparent background.';
 
 export function hasOpenAIKey(): boolean {
   return Boolean(import.meta.env.VITE_OPENAI_API_KEY);
