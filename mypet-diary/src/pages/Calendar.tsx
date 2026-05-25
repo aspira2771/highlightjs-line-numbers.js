@@ -86,17 +86,17 @@ export function CalendarPage() {
         <div className="mb-3 flex items-center justify-between">
           <button
             onClick={() => setAnchor((d) => subMonths(d, 1))}
-            className="rounded-full p-1.5 text-muted transition hover:bg-panel"
+            className="rounded-full p-1.5 text-muted transition hover:bg-gray-100"
             aria-label="이전 달"
           >
             <ChevronLeft size={18} />
           </button>
-          <h3 className="font-serif text-[17px] tracking-tightest text-ink">
+          <h3 className="text-[17px] font-bold tracking-tight text-ink">
             {monthLabel}
           </h3>
           <button
             onClick={() => setAnchor((d) => addMonths(d, 1))}
-            className="rounded-full p-1.5 text-muted transition hover:bg-panel"
+            className="rounded-full p-1.5 text-muted transition hover:bg-gray-100"
             aria-label="다음 달"
           >
             <ChevronRight size={18} />
@@ -122,8 +122,8 @@ export function CalendarPage() {
                   'relative aspect-square rounded-soft text-[13px] transition',
                   inMonth ? 'text-ink' : 'text-muted/40',
                   isSelected && 'bg-primary text-white font-medium',
-                  !isSelected && hasEvent && 'bg-panel font-medium',
-                  !isSelected && !hasEvent && 'hover:bg-panel/60',
+                  !isSelected && hasEvent && 'bg-gray-100 font-medium',
+                  !isSelected && !hasEvent && 'hover:bg-gray-100',
                 )}
               >
                 <span>{day.getDate()}</span>
@@ -162,15 +162,17 @@ export function CalendarPage() {
             description="여유로운 하루를 보내세요."
           />
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {careOnDay.map((item) => (
-              <li key={item.id} className="flex items-center gap-3">
-                <span className="text-xl">{CARE_ICONS[item.type]}</span>
+              <li key={item.id} className="flex items-center gap-3 py-1">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-lg">
+                  {CARE_ICONS[item.type]}
+                </span>
                 <div>
-                  <p className="text-sm font-semibold">
+                  <p className="text-[15px] font-semibold text-ink">
                     {item.title || CARE_LABELS[item.type]}
                   </p>
-                  <p className="text-xs text-muted">
+                  <p className="text-[13px] text-muted">
                     {format(parseISO(item.scheduledAt), 'HH:mm')}
                     {item.completed && ' · 완료'}
                   </p>
@@ -178,11 +180,15 @@ export function CalendarPage() {
               </li>
             ))}
             {hospitalOnDay.map((h) => (
-              <li key={h.id} className="flex items-center gap-3">
-                <span className="text-xl">🏥</span>
+              <li key={h.id} className="flex items-center gap-3 py-1">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-lg">
+                  🏥
+                </span>
                 <div>
-                  <p className="text-sm font-semibold">{h.hospitalName}</p>
-                  <p className="text-xs text-muted">
+                  <p className="text-[15px] font-semibold text-ink">
+                    {h.hospitalName}
+                  </p>
+                  <p className="text-[13px] text-muted">
                     {h.purpose}
                     {h.hospitalContact && ` · ${h.hospitalContact}`}
                   </p>
@@ -205,7 +211,7 @@ export function CalendarPage() {
               .slice(-3)
               .reverse()
               .map((h) => (
-                <li key={h.id} className="rounded-soft border border-line bg-panel/50 p-3.5">
+                <li key={h.id} className="rounded-soft border border-line bg-gray-50 p-3.5">
                   <p className="text-[13px] font-medium text-ink">
                     {format(parseISO(h.visitDate), 'yyyy-MM-dd')} ·{' '}
                     {h.hospitalName}
@@ -232,7 +238,7 @@ export function CalendarPage() {
         title="병원 방문 기록"
       >
         {medications.length > 0 && (
-          <p className="rounded-soft border border-line bg-panel/60 p-2.5 text-[11px] text-muted">
+          <p className="rounded-soft border border-line bg-gray-100 p-2.5 text-[11px] text-muted">
             현재 복용 중인 약: {medications.map((m) => m.name).join(', ')}
           </p>
         )}

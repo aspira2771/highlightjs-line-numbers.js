@@ -8,11 +8,11 @@ interface Props {
 
 export function PageHeader({ title, subtitle, action }: Props) {
   return (
-    <header className="mb-7 flex items-start justify-between gap-3">
+    <header className="mb-6 flex items-start justify-between gap-3">
       <div>
-        <h1 className="hero-title">{title}</h1>
+        <h1 className="display">{title}</h1>
         {subtitle && (
-          <p className="mt-1.5 text-[13px] leading-relaxed text-muted">
+          <p className="mt-2 text-[14px] leading-relaxed text-muted">
             {subtitle}
           </p>
         )}

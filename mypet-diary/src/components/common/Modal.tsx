@@ -27,25 +27,30 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/30 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md rounded-t-3xl border border-line bg-surface p-6 shadow-card animate-fadeUp sm:rounded-card"
+        className="relative w-full max-w-md rounded-t-3xl bg-surface px-6 pb-7 pt-6 shadow-float animate-fadeUp sm:rounded-card"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          aria-label="닫기"
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-full p-1.5 text-muted transition hover:bg-panel"
-        >
-          <X size={18} />
-        </button>
-        {title && (
-          <h2 className="mb-5 pr-8 font-serif text-[20px] leading-tight tracking-tightest text-ink">
-            {title}
-          </h2>
-        )}
+        <div className="mx-auto mb-4 h-1 w-10 rounded-pill bg-gray-200 sm:hidden" />
+        <div className="mb-5 flex items-center justify-between">
+          {title ? (
+            <h2 className="text-[20px] font-bold tracking-tight text-ink">
+              {title}
+            </h2>
+          ) : (
+            <span />
+          )}
+          <button
+            aria-label="닫기"
+            onClick={onClose}
+            className="rounded-full p-1.5 text-gray-500 transition hover:bg-gray-100"
+          >
+            <X size={20} />
+          </button>
+        </div>
         <div className="space-y-4">{children}</div>
         {footer && <div className="mt-6 flex gap-2">{footer}</div>}
       </div>

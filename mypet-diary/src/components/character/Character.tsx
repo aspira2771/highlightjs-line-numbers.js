@@ -11,39 +11,32 @@ interface CharacterProps {
   animated?: boolean;
 }
 
-const MOOD_DECORATION: Record<CharacterMood, string> = {
-  happy: '·',
-  sad: '·',
-  calm: '·',
-  sleepy: '·',
-};
-
 const MOOD_LABEL: Record<CharacterMood, string> = {
-  happy: '기뻐요',
+  happy: '기분 최고',
   sad: '아쉬워요',
-  calm: '안심',
+  calm: '편안해요',
   sleepy: '졸려요',
 };
 
 const MOOD_TONE: Record<CharacterMood, string> = {
   happy: 'bg-primary text-white',
-  sad: 'bg-accent-100 text-ink',
-  calm: 'bg-secondary-100 text-ink',
-  sleepy: 'bg-panel text-muted',
+  sad: 'bg-amber-100 text-amber-700',
+  calm: 'bg-primary-50 text-primary-500',
+  sleepy: 'bg-gray-100 text-gray-600',
 };
 
 const TEMPLATE_BG: Record<CharacterTemplate, string> = {
-  classic: 'from-primary-50 to-primary-100',
-  pastel: 'from-secondary-50 to-secondary-100',
-  star: 'from-accent-50 to-accent-100',
-  forest: 'from-secondary-100 to-secondary-200',
-  astronaut: 'from-primary-100 to-secondary-100',
+  classic: 'bg-primary-50',
+  pastel: 'bg-[#E7F9F5]',
+  star: 'bg-[#FFF4E0]',
+  forest: 'bg-[#EAF6EC]',
+  astronaut: 'bg-[#EEE9FE]',
 };
 
 const SIZE_CLASS = {
-  sm: 'h-16 w-16 text-2xl',
-  md: 'h-28 w-28 text-4xl',
-  lg: 'h-40 w-40 text-6xl',
+  sm: 'h-14 w-14 text-2xl',
+  md: 'h-24 w-24 text-4xl',
+  lg: 'h-32 w-32 text-5xl',
 };
 
 export function Character({
@@ -58,7 +51,7 @@ export function Character({
     <div className="relative inline-flex items-center justify-center">
       <div
         className={cn(
-          'flex items-center justify-center rounded-full bg-gradient-to-br border border-line/60',
+          'flex items-center justify-center rounded-full',
           TEMPLATE_BG[template],
           SIZE_CLASS[size],
           animated && 'animate-floaty',
@@ -74,17 +67,16 @@ export function Character({
           <span aria-hidden>{SPECIES_EMOJI[species]}</span>
         )}
       </div>
-      {size !== 'sm' && (
+      {size === 'lg' && (
         <span
           className={cn(
-            'absolute -bottom-1 right-0 rounded-pill px-2 py-0.5 text-[10px] font-medium shadow-soft',
+            'absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-pill px-3 py-1 text-[12px] font-bold shadow-soft',
             MOOD_TONE[mood],
           )}
         >
           {MOOD_LABEL[mood]}
         </span>
       )}
-      <span className="sr-only">{MOOD_DECORATION[mood]}</span>
     </div>
   );
 }
@@ -93,9 +85,9 @@ export const CHARACTER_TEMPLATES: Array<{
   id: CharacterTemplate;
   label: string;
 }> = [
-  { id: 'classic', label: '클래식' },
-  { id: 'pastel', label: '파스텔' },
-  { id: 'star', label: '골드' },
-  { id: 'forest', label: '포레스트' },
-  { id: 'astronaut', label: '듀얼' },
+  { id: 'classic', label: '블루' },
+  { id: 'pastel', label: '민트' },
+  { id: 'star', label: '옐로' },
+  { id: 'forest', label: '그린' },
+  { id: 'astronaut', label: '퍼플' },
 ];

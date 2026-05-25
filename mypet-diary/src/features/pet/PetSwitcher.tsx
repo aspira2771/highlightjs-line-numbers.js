@@ -16,10 +16,10 @@ export function PetSwitcher() {
           key={pet.id}
           onClick={() => setActivePet(pet.id)}
           className={cn(
-            'flex shrink-0 items-center gap-2 rounded-pill border px-3 py-1.5 text-[12px] font-medium transition',
+            'flex shrink-0 items-center gap-2 rounded-pill px-3 py-1.5 text-[13px] font-bold transition',
             pet.id === activePetId
-              ? 'border-primary bg-primary text-white'
-              : 'border-line bg-surface text-ink hover:border-primary-200',
+              ? 'bg-primary text-white'
+              : 'bg-gray-100 text-gray-600',
           )}
         >
           <Character

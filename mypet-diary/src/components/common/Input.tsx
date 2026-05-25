@@ -8,7 +8,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const fieldBase =
-  'w-full rounded-soft border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink placeholder:text-muted/80 transition focus:border-primary-300 focus:outline-none focus:shadow-focus';
+  'w-full rounded-soft bg-gray-100 px-4 py-3.5 text-[15px] font-medium text-ink placeholder:text-gray-400 placeholder:font-normal transition focus:bg-surface focus:outline-none focus:shadow-focus';
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, hint, error, className, id, ...rest }, ref) => {
@@ -16,7 +16,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <label className="block" htmlFor={inputId}>
         {label && (
-          <span className="mb-1.5 block text-[12px] font-medium uppercase tracking-wide text-muted">
+          <span className="mb-2 block text-[13px] font-semibold text-gray-700">
             {label}
           </span>
         )}
@@ -26,14 +26,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {...rest}
           className={cn(
             fieldBase,
-            error && 'border-red-300 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(220,80,80,0.15)]',
+            error && 'shadow-[0_0_0_2px_#F04452] focus:shadow-[0_0_0_2px_#F04452]',
             className,
           )}
         />
         {error ? (
-          <span className="mt-1 block text-xs text-red-600">{error}</span>
+          <span className="mt-1.5 block text-[13px] font-medium text-negative">
+            {error}
+          </span>
         ) : hint ? (
-          <span className="mt-1 block text-xs text-muted">{hint}</span>
+          <span className="mt-1.5 block text-[13px] text-muted">{hint}</span>
         ) : null}
       </label>
     );
@@ -58,7 +60,7 @@ export function Textarea({
   return (
     <label className="block" htmlFor={fieldId}>
       {label && (
-        <span className="mb-1.5 block text-[12px] font-medium uppercase tracking-wide text-muted">
+        <span className="mb-2 block text-[13px] font-semibold text-gray-700">
           {label}
         </span>
       )}
@@ -67,7 +69,7 @@ export function Textarea({
         {...rest}
         className={cn(fieldBase, 'leading-relaxed', className)}
       />
-      {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
+      {hint && <span className="mt-1.5 block text-[13px] text-muted">{hint}</span>}
     </label>
   );
 }
@@ -88,14 +90,14 @@ export function Select({
   return (
     <label className="block" htmlFor={fieldId}>
       {label && (
-        <span className="mb-1.5 block text-[12px] font-medium uppercase tracking-wide text-muted">
+        <span className="mb-2 block text-[13px] font-semibold text-gray-700">
           {label}
         </span>
       )}
       <select
         id={fieldId}
         {...rest}
-        className={cn(fieldBase, className)}
+        className={cn(fieldBase, 'appearance-none', className)}
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>

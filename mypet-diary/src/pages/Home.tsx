@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Flame, Sparkles, BellRing } from 'lucide-react';
+import { Plus, BellRing } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
@@ -66,10 +66,10 @@ export function HomePage() {
       : 'sad';
   const message =
     total === 0
-      ? `${activePet.name}: "오늘 계획을 알려줘!"`
+      ? '오늘 케어를 등록해볼까요?'
       : completed === total
-      ? `${activePet.name}: "오늘 다 했어! 고마워!"`
-      : `${activePet.name}: "오늘 ${total - completed}개 남았어!"`;
+      ? '오늘 케어를 다 마쳤어요!'
+      : `오늘 ${total - completed}개 남았어요`;
 
   const handleToggle = (id: string) => {
     const item = todayItems.find((i) => i.id === id);
@@ -84,84 +84,93 @@ export function HomePage() {
     <div className="page">
       <PetSwitcher />
 
-      <Card className="bg-gradient-to-b from-panel/60 to-surface">
-        <div className="flex flex-col items-center text-center">
+      {/* Hero card */}
+      <div className="card overflow-hidden">
+        <div className="flex items-center gap-4">
           <Character
             photoUrl={activePet.photoUrl}
             species={activePet.species}
             template={activePet.characterTemplate}
             mood={mood}
-            size="lg"
+            size="md"
           />
-          <p className="mt-6 font-serif text-[17px] leading-snug tracking-tightest text-ink">
-            {message}
-          </p>
-          <div className="mt-5 w-full">
-            <div className="mb-2 flex items-center justify-between text-[11px] uppercase tracking-wide text-muted">
-              <span>오늘의 케어</span>
-              <span className="font-medium text-ink-soft">
-                {completed} / {total}
-              </span>
-            </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-pill bg-line">
-              <div
-                className="h-full rounded-pill bg-primary transition-all"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+          <div className="flex-1">
+            <p className="text-[14px] font-semibold text-muted">
+              {activePet.name}
+            </p>
+            <p className="mt-0.5 text-[21px] font-bold leading-snug tracking-tight text-ink">
+              {message}
+            </p>
           </div>
         </div>
-      </Card>
+        <div className="mt-5">
+          <div className="mb-2 flex items-center justify-between text-[13px]">
+            <span className="font-semibold text-gray-600">오늘의 케어</span>
+            <span className="font-bold text-primary">
+              {completed}
+              <span className="text-gray-400">/{total}</span>
+            </span>
+          </div>
+          <div className="h-2.5 w-full overflow-hidden rounded-pill bg-gray-100">
+            <div
+              className="h-full rounded-pill bg-primary transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      </div>
 
-      <div className="my-4 grid grid-cols-2 gap-3">
-        <div className="card flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary">
-            <Flame size={18} />
+      <div className="my-3 grid grid-cols-2 gap-3">
+        <div className="card flex items-center gap-3 p-4">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FFF4E0] text-xl">
+            🔥
           </span>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-muted">연속 케어</p>
-            <p className="font-serif text-[18px] tracking-tightest text-ink">
+            <p className="text-[13px] font-medium text-muted">연속 케어</p>
+            <p className="text-[20px] font-bold tracking-tight text-ink">
               {streak?.currentDays ?? 0}일
             </p>
           </div>
         </div>
-        <div className="card flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-50 text-accent-300">
-            <Sparkles size={18} />
+        <div className="card flex items-center gap-3 p-4">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-50 text-xl">
+            ⭐
           </span>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-muted">포인트</p>
-            <p className="font-serif text-[18px] tracking-tightest text-ink">{totalPoints}P</p>
+            <p className="text-[13px] font-medium text-muted">포인트</p>
+            <p className="text-[20px] font-bold tracking-tight text-ink">
+              {totalPoints}P
+            </p>
           </div>
         </div>
       </div>
 
       {permission !== 'granted' && permission !== 'unsupported' && (
-        <div className="mb-4 flex items-center gap-3 rounded-card border border-line bg-panel/50 p-4">
+        <button
+          onClick={request}
+          className="mb-3 flex w-full items-center gap-3 rounded-card bg-primary-50 p-4 text-left transition active:scale-[0.99]"
+        >
           <BellRing className="text-primary" size={20} />
           <div className="flex-1">
-            <p className="text-[14px] font-medium text-ink">알림을 켜주세요</p>
-            <p className="text-[12px] text-muted">
-              {activePet.name}이 시간 맞춰 말 걸어줄 거예요.
+            <p className="text-[14px] font-bold text-ink">알림 켜기</p>
+            <p className="text-[13px] text-gray-600">
+              {activePet.name}의 케어 시간을 알려드릴게요
             </p>
           </div>
-          <Button size="sm" onClick={request}>
-            켜기
-          </Button>
-        </div>
+          <span className="text-[14px] font-bold text-primary">켜기</span>
+        </button>
       )}
 
       <Card
         title="오늘 할 일"
         action={
-          <Button
-            size="sm"
-            variant="ghost"
-            leftIcon={<Plus size={16} />}
+          <button
             onClick={() => setAddOpen(true)}
+            className="flex items-center gap-1 rounded-pill bg-gray-100 px-3 py-1.5 text-[13px] font-bold text-gray-700 transition active:scale-95"
           >
+            <Plus size={15} strokeWidth={2.6} />
             추가
-          </Button>
+          </button>
         }
       >
         <CareList

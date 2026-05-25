@@ -12,7 +12,7 @@
   body {
     @apply bg-bg text-ink font-sans antialiased;
     -webkit-tap-highlight-color: transparent;
-    font-feature-settings: 'ss01' on, 'cv01' on;
+    letter-spacing: -0.01em;
   }
 
   button {
@@ -20,8 +20,7 @@
   }
 
   h1, h2, h3 {
-    font-family: '"Source Serif 4"', '"Noto Serif KR"', Georgia, serif;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -31,26 +30,28 @@
   }
 
   .page {
-    @apply flex-1 overflow-y-auto px-5 pb-28 pt-7;
+    @apply flex-1 overflow-y-auto px-5 pb-28 pt-6;
   }
 
+  /* Toss-style white card on light gray background */
   .card {
-    @apply rounded-card border border-line bg-surface p-5 shadow-soft;
-  }
-
-  .panel {
-    @apply rounded-card bg-panel p-5;
+    @apply rounded-card bg-surface p-5 shadow-soft;
   }
 
   .pill {
-    @apply inline-flex items-center rounded-pill border border-line bg-surface px-3 py-1 text-[11px] font-medium text-muted;
+    @apply inline-flex items-center rounded-pill bg-gray-100 px-3 py-1 text-[12px] font-semibold text-gray-700;
   }
 
   .pill-solid {
-    @apply inline-flex items-center rounded-pill bg-primary px-3 py-1 text-[11px] font-medium text-white;
+    @apply inline-flex items-center rounded-pill bg-primary px-2.5 py-0.5 text-[11px] font-bold text-white;
   }
 
-  .hero-title {
-    @apply font-serif text-[28px] leading-tight tracking-tightest text-ink;
+  /* Big Toss-style title */
+  .display {
+    @apply text-[26px] font-bold leading-tight tracking-tight text-ink;
+  }
+
+  .section-title {
+    @apply text-[19px] font-bold tracking-tight text-ink;
   }
 }

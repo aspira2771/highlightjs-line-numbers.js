@@ -70,37 +70,37 @@ export function MyPetPage() {
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="font-serif text-[18px] tracking-tightest text-ink">
+                      <p className="text-[18px] font-bold tracking-tight text-ink">
                         {pet.name}
                       </p>
                       {pet.id === activePetId && (
                         <span className="pill-solid">활성</span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-[12px] text-muted">
+                    <p className="mt-0.5 text-[13px] font-medium text-muted">
                       {SPECIES_LABELS[pet.species]}
                       {pet.breed && ` · ${pet.breed}`}
                       {age !== null && ` · ${age}살`}
                       {pet.weight && ` · ${pet.weight}kg`}
                     </p>
                   </div>
-                  <div className="flex flex-col items-end gap-1.5 text-[12px]">
+                  <div className="flex flex-col items-end gap-1.5 text-[13px] font-semibold">
                     {pet.id !== activePetId && (
                       <button
-                        className="font-medium text-primary"
+                        className="text-primary"
                         onClick={() => setActivePet(pet.id)}
                       >
                         활성
                       </button>
                     )}
                     <button
-                      className="text-muted hover:text-ink"
+                      className="text-gray-500 hover:text-ink"
                       onClick={() => setEditId(pet.id)}
                     >
                       수정
                     </button>
                     <button
-                      className="text-muted hover:text-red-600"
+                      className="text-gray-400 hover:text-negative"
                       onClick={() => {
                         if (confirm(`${pet.name}을 삭제할까요?`)) {
                           removePet(pet.id);
@@ -108,20 +108,20 @@ export function MyPetPage() {
                       }}
                       aria-label="삭제"
                     >
-                      <Trash2 size={13} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-1.5">
                   {pet.careTemplate.map((type) => (
                     <span key={type} className="pill">
-                      <span className="mr-1 opacity-70">{CARE_ICONS[type]}</span>
+                      <span className="mr-1">{CARE_ICONS[type]}</span>
                       {CARE_LABELS[type]}
                     </span>
                   ))}
                 </div>
                 {pet.notes && (
-                  <p className="mt-4 rounded-soft border border-line bg-panel/60 p-3 text-[12px] leading-relaxed text-ink-soft">
+                  <p className="mt-4 rounded-soft bg-gray-100 p-3.5 text-[13px] leading-relaxed text-gray-700">
                     {pet.notes}
                   </p>
                 )}
@@ -131,31 +131,29 @@ export function MyPetPage() {
         })}
       </ul>
 
-      <Card className="mt-6" title="설정">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[14px] font-medium text-ink">푸시 알림</p>
-              <p className="mt-0.5 text-[12px] text-muted">
-                {permission === 'granted'
-                  ? '켜져 있어요'
-                  : permission === 'denied'
-                  ? '브라우저 설정에서 허용해주세요'
-                  : permission === 'unsupported'
-                  ? '이 브라우저는 알림을 지원하지 않아요'
-                  : '아직 허용 전이에요'}
-              </p>
-            </div>
-            {permission !== 'granted' && permission !== 'unsupported' && (
-              <Button size="sm" variant="outline" onClick={request}>
-                허용
-              </Button>
-            )}
+      <Card className="mt-3" title="설정">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[15px] font-semibold text-ink">푸시 알림</p>
+            <p className="mt-0.5 text-[13px] text-muted">
+              {permission === 'granted'
+                ? '켜져 있어요'
+                : permission === 'denied'
+                ? '브라우저 설정에서 허용해주세요'
+                : permission === 'unsupported'
+                ? '이 브라우저는 알림을 지원하지 않아요'
+                : '아직 허용 전이에요'}
+            </p>
           </div>
+          {permission !== 'granted' && permission !== 'unsupported' && (
+            <Button size="sm" variant="secondary" onClick={request}>
+              허용
+            </Button>
+          )}
         </div>
       </Card>
 
-      <p className="mt-8 text-center text-[11px] leading-relaxed text-muted">
+      <p className="mt-7 text-center text-[12px] leading-relaxed text-gray-400">
         종별 케어 항목은 보호자의 기록 보조용이에요.
         <br />
         의학적 기준은 동물병원의 조언을 따라주세요.

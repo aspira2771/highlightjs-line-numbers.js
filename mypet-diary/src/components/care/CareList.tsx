@@ -52,7 +52,7 @@ export function CareList({ items, onToggle, onRemove }: Props) {
       {sections.map(({ key, label }) =>
         groups[key].length > 0 ? (
           <section key={key}>
-            <h4 className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted">
+            <h4 className="mb-1.5 px-1 text-[13px] font-bold text-gray-600">
               {label}
             </h4>
             <ul className="space-y-2">

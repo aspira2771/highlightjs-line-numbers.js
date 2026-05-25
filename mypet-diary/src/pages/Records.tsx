@@ -59,15 +59,15 @@ export function RecordsPage() {
       <PageHeader title="기록" subtitle={`${activePet.name}의 건강 기록`} />
       <PetSwitcher />
 
-      <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`shrink-0 rounded-pill border px-4 py-1.5 text-[13px] font-medium transition ${
+            className={`shrink-0 rounded-pill px-4 py-2 text-[14px] font-bold transition ${
               tab === t.id
-                ? 'border-primary bg-primary text-white'
-                : 'border-line bg-surface text-ink-soft hover:border-primary-200'
+                ? 'bg-primary text-white'
+                : 'bg-gray-100 text-gray-500'
             }`}
           >
             {t.label}
@@ -81,24 +81,24 @@ export function RecordsPage() {
             <WeightChart records={weights} />
           </Card>
           {advisory && (
-            <div className="mt-3 rounded-soft border border-primary-200 bg-primary-50 p-3.5 text-[12px] leading-relaxed text-primary-600">
+            <div className="mt-3 rounded-card bg-primary-50 p-4 text-[13px] font-medium leading-relaxed text-primary-600">
               {advisory}
             </div>
           )}
-          <ul className="mt-4 space-y-2">
+          <ul className="mt-3 space-y-2">
             {weights
               .slice()
               .reverse()
               .map((w) => (
                 <li key={w.id} className="card flex items-center justify-between">
                   <div>
-                    <p className="font-semibold">{w.weight}kg</p>
-                    <p className="text-xs text-muted">
+                    <p className="text-[17px] font-bold text-ink">{w.weight}kg</p>
+                    <p className="text-[13px] text-muted">
                       {formatKoreanDate(w.recordedAt)}
                     </p>
                   </div>
                   <button
-                    className="text-[11px] text-muted hover:text-red-600"
+                    className="text-[13px] font-semibold text-gray-400 hover:text-negative"
                     onClick={() => records.removeWeight(w.id)}
                   >
                     삭제
@@ -211,7 +211,7 @@ export function RecordsPage() {
                   )}
                 </div>
                 <button
-                  className="text-xs text-red-500"
+                  className="text-[13px] font-semibold text-gray-400 hover:text-negative"
                   onClick={() => records.removeMedication(m.id)}
                 >
                   삭제
@@ -249,7 +249,7 @@ export function RecordsPage() {
                     )}
                 </div>
                 <button
-                  className="text-xs text-red-500"
+                  className="text-[13px] font-semibold text-gray-400 hover:text-negative"
                   onClick={() => records.removeSupplement(s.id)}
                 >
                   삭제
@@ -262,11 +262,11 @@ export function RecordsPage() {
 
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-24 right-5 z-20 flex h-13 w-13 items-center justify-center rounded-full bg-primary text-white shadow-card transition hover:bg-primary-500 active:scale-95"
-        style={{ height: '52px', width: '52px' }}
+        className="fixed bottom-24 right-5 z-20 flex items-center justify-center rounded-full bg-primary text-white shadow-float transition hover:bg-primary-500 active:scale-95"
+        style={{ height: '56px', width: '56px' }}
         aria-label="기록 추가"
       >
-        <Plus size={22} strokeWidth={2.2} />
+        <Plus size={24} strokeWidth={2.4} />
       </button>
 
       <Modal

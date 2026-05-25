@@ -40,36 +40,41 @@ export function WeightChart({ records }: Props) {
     <div className="h-56 w-full">
       <ResponsiveContainer>
         <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-          <CartesianGrid stroke="#E5DFCF" strokeDasharray="3 3" />
+          <CartesianGrid stroke="#E5E8EB" strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="date"
-            stroke="#7A6F62"
+            stroke="#8B95A1"
             fontSize={11}
             tickMargin={6}
+            axisLine={false}
+            tickLine={false}
           />
           <YAxis
-            stroke="#7A6F62"
+            stroke="#8B95A1"
             fontSize={11}
             domain={['dataMin - 0.2', 'dataMax + 0.2']}
             tickFormatter={(v: number) => `${v.toFixed(1)}kg`}
             width={52}
+            axisLine={false}
+            tickLine={false}
           />
           <Tooltip
             contentStyle={{
-              borderRadius: 10,
-              border: '1px solid #E5DFCF',
-              fontSize: 12,
-              boxShadow: '0 1px 3px rgba(47,42,38,0.08)',
+              borderRadius: 12,
+              border: 'none',
+              fontSize: 13,
+              fontWeight: 600,
+              boxShadow: '0 6px 24px rgba(0,27,55,0.10)',
             }}
             formatter={(value: number) => [`${value}kg`, '체중']}
           />
           <Line
             type="monotone"
             dataKey="weight"
-            stroke="#C15F3C"
-            strokeWidth={2.5}
-            dot={{ r: 3.5, fill: '#C15F3C' }}
-            activeDot={{ r: 5 }}
+            stroke="#3182F6"
+            strokeWidth={3}
+            dot={{ r: 3.5, fill: '#3182F6', strokeWidth: 0 }}
+            activeDot={{ r: 5.5 }}
           />
         </LineChart>
       </ResponsiveContainer>

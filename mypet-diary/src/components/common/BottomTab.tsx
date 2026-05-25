@@ -12,8 +12,8 @@ const tabs = [
 
 export function BottomTab() {
   return (
-    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center pb-3">
-      <div className="pointer-events-auto mx-3 flex w-full max-w-md items-center justify-between rounded-card border border-line bg-surface/95 px-3 py-2 shadow-card backdrop-blur">
+    <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-line bg-surface/95 backdrop-blur">
+      <div className="flex w-full max-w-md items-center justify-between px-2 pb-[max(env(safe-area-inset-bottom),8px)] pt-2">
         {tabs.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -21,17 +21,17 @@ export function BottomTab() {
             end={to === '/'}
             className={({ isActive }) =>
               cn(
-                'flex flex-1 flex-col items-center gap-0.5 rounded-soft py-1.5 text-[11px] font-medium transition',
-                isActive ? 'text-primary' : 'text-muted',
+                'flex flex-1 flex-col items-center gap-1 rounded-soft py-1.5 text-[11px] font-semibold transition',
+                isActive ? 'text-primary' : 'text-gray-400',
               )
             }
           >
             {({ isActive }) => (
               <>
                 <Icon
-                  size={20}
+                  size={22}
                   className={cn(isActive && 'animate-pop')}
-                  strokeWidth={isActive ? 2.2 : 1.6}
+                  strokeWidth={isActive ? 2.4 : 2}
                 />
                 <span>{label}</span>
               </>
