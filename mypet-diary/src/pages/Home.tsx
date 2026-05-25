@@ -103,6 +103,7 @@ export function HomePage() {
         <div className="flex items-center gap-4">
           <Character
             photoUrl={activePet.photoUrl}
+            characterUrl={activePet.characterUrl}
             species={activePet.species}
             template={activePet.characterTemplate}
             mood={mood}

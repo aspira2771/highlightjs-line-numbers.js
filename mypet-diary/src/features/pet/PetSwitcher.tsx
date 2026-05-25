@@ -24,6 +24,7 @@ export function PetSwitcher() {
         >
           <Character
             photoUrl={pet.photoUrl}
+            characterUrl={pet.characterUrl}
             species={pet.species}
             template={pet.characterTemplate}
             size="sm"

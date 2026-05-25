@@ -64,6 +64,7 @@ export function MyPetPage() {
                 <div className="flex items-start gap-4">
                   <Character
                     photoUrl={pet.photoUrl}
+                    characterUrl={pet.characterUrl}
                     species={pet.species}
                     template={pet.characterTemplate}
                     size="sm"
