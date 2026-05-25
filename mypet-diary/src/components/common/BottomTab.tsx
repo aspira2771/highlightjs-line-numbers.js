@@ -1,13 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { Calendar, Heart, Home, Notebook, User } from 'lucide-react';
+import { ClipboardList, Footprints, Heart, Home, User } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 const tabs = [
   { to: '/', label: '홈', icon: Home },
-  { to: '/records', label: '기록', icon: Notebook },
-  { to: '/calendar', label: '캘린더', icon: Calendar },
+  { to: '/care', label: '케어', icon: ClipboardList },
   { to: '/community', label: '커뮤니티', icon: Heart },
-  { to: '/mypet', label: '마이펫', icon: User },
+  { to: '/walk', label: '동네산책', icon: Footprints },
+  { to: '/mypet', label: '마이페이지', icon: User },
 ];
 
 export function BottomTab() {
@@ -21,7 +21,7 @@ export function BottomTab() {
             end={to === '/'}
             className={({ isActive }) =>
               cn(
-                'flex flex-1 flex-col items-center gap-1 rounded-soft py-1.5 text-[11px] font-semibold transition',
+                'flex flex-1 flex-col items-center gap-1 rounded-soft py-1.5 text-[10px] font-semibold transition',
                 isActive ? 'text-primary' : 'text-gray-400',
               )
             }
@@ -29,11 +29,11 @@ export function BottomTab() {
             {({ isActive }) => (
               <>
                 <Icon
-                  size={22}
+                  size={21}
                   className={cn(isActive && 'animate-pop')}
                   strokeWidth={isActive ? 2.4 : 2}
                 />
-                <span>{label}</span>
+                <span className="whitespace-nowrap">{label}</span>
               </>
             )}
           </NavLink>

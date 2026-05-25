@@ -14,15 +14,13 @@ import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
 import { Modal } from '@/components/common/Modal';
-import { PageHeader } from '@/components/common/PageHeader';
-import { PetSwitcher } from '@/features/pet/PetSwitcher';
 import { AddHospitalForm } from '@/features/hospital/AddHospitalForm';
-import { usePetStore } from '@/stores/petStore';
 import { useCareStore } from '@/stores/careStore';
 import { useRecordsStore } from '@/stores/recordsStore';
 import { CARE_ICONS, CARE_LABELS, CARE_TINT } from '@/utils/careLabels';
 import { ListRow } from '@/components/common/ListRow';
 import { cn } from '@/utils/cn';
+import type { Pet } from '@/types';
 
 function buildMonthGrid(anchor: Date): Date[] {
   const start = startOfWeek(startOfMonth(anchor), { weekStartsOn: 0 });
@@ -33,10 +31,7 @@ function buildMonthGrid(anchor: Date): Date[] {
   return days;
 }
 
-export function CalendarPage() {
-  const activePet = usePetStore((s) =>
-    s.pets.find((p) => p.id === s.activePetId),
-  );
+export function CalendarView({ activePet }: { activePet: Pet }) {
   const careItems = useCareStore((s) => s.items);
   const hospitals = useRecordsStore((s) => s.hospitals);
   const medications = useRecordsStore((s) => s.medications);
@@ -44,19 +39,6 @@ export function CalendarPage() {
   const [anchor, setAnchor] = useState(new Date());
   const [selected, setSelected] = useState(new Date());
   const [open, setOpen] = useState(false);
-
-  if (!activePet) {
-    return (
-      <div className="page">
-        <PageHeader title="캘린더" />
-        <EmptyState
-          emoji="📅"
-          title="등록된 반려동물이 없어요"
-          description="마이펫 탭에서 먼저 등록해주세요."
-        />
-      </div>
-    );
-  }
 
   const days = useMemo(() => buildMonthGrid(anchor), [anchor]);
   const monthLabel = format(anchor, 'yyyy년 M월');
@@ -79,10 +61,7 @@ export function CalendarPage() {
   const { careOnDay, hospitalOnDay } = eventsForDay(selected);
 
   return (
-    <div className="page">
-      <PageHeader title="캘린더" subtitle={`${activePet.name}의 일정`} />
-      <PetSwitcher />
-
+    <div className="space-y-4">
       <Card>
         <div className="mb-3 flex items-center justify-between">
           <button
@@ -143,7 +122,6 @@ export function CalendarPage() {
       </Card>
 
       <Card
-        className="mt-4"
         title={format(selected, 'M월 d일') + ' 일정'}
         action={
           <Button
@@ -193,7 +171,7 @@ export function CalendarPage() {
         )}
       </Card>
 
-      <Card className="mt-4" title="병원 리포트">
+      <Card title="병원 리포트">
         {hospitals.filter((h) => h.petId === activePet.id).length === 0 ? (
           <p className="text-sm text-muted">
             아직 진료 기록이 없어요. 방문 후 기록해두면 다음 진료에 도움이 돼요.

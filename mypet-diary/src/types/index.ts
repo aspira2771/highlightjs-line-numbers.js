@@ -118,6 +118,8 @@ export interface WalkRecord {
   hadBowelMovement?: boolean;
   weather?: string;
   note?: string;
+  distanceKm?: number;
+  route?: Array<{ lat: number; lng: number }>;
 }
 
 export interface MealRecord {

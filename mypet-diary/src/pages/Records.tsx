@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
 import { Modal } from '@/components/common/Modal';
-import { PageHeader } from '@/components/common/PageHeader';
-import { PetSwitcher } from '@/features/pet/PetSwitcher';
 import { AddMealForm } from '@/features/meal/AddMealForm';
 import { AddWeightForm } from '@/features/weight/AddWeightForm';
 import { AddWalkForm } from '@/features/walk/AddWalkForm';
@@ -12,9 +9,9 @@ import { AddMedicationForm } from '@/features/medication/AddMedicationForm';
 import { AddSupplementForm } from '@/features/supplement/AddSupplementForm';
 import { WeightChart, weightAdvisory } from '@/components/charts/WeightChart';
 import { ListRow } from '@/components/common/ListRow';
-import { usePetStore } from '@/stores/petStore';
 import { useRecordsStore } from '@/stores/recordsStore';
 import { formatKoreanDate, formatKoreanTime } from '@/utils/date';
+import type { Pet } from '@/types';
 
 function DeleteButton({ onClick }: { onClick: () => void }) {
   return (
@@ -37,26 +34,10 @@ const TABS: Array<{ id: Tab; label: string }> = [
   { id: 'supplement', label: '영양제' },
 ];
 
-export function RecordsPage() {
-  const activePet = usePetStore((s) =>
-    s.pets.find((p) => p.id === s.activePetId),
-  );
+export function RecordsView({ activePet }: { activePet: Pet }) {
   const records = useRecordsStore();
   const [tab, setTab] = useState<Tab>('weight');
   const [open, setOpen] = useState(false);
-
-  if (!activePet) {
-    return (
-      <div className="page">
-        <PageHeader title="기록" />
-        <EmptyState
-          emoji="📓"
-          title="등록된 반려동물이 없어요"
-          description="마이펫 탭에서 먼저 등록해주세요."
-        />
-      </div>
-    );
-  }
 
   const petId = activePet.id;
   const weights = records.weights.filter((r) => r.petId === petId);
@@ -67,10 +48,7 @@ export function RecordsPage() {
   const advisory = weightAdvisory(weights);
 
   return (
-    <div className="page">
-      <PageHeader title="기록" subtitle={`${activePet.name}의 건강 기록`} />
-      <PetSwitcher />
-
+    <div>
       <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
         {TABS.map((t) => (
           <button
@@ -152,7 +130,7 @@ export function RecordsPage() {
                   key={w.id}
                   thumb="🐾"
                   thumbClass="bg-[#E7F6EC]"
-                  title={`${w.durationMinutes}분 산책`}
+                  title={`${w.durationMinutes}분 산책${typeof w.distanceKm === 'number' ? ` · ${w.distanceKm.toFixed(2)}km` : ''}`}
                   description={`${formatKoreanDate(w.startedAt)} · ${formatKoreanTime(w.startedAt)}${w.weather ? ` · ${w.weather}` : ''}${w.hadBowelMovement ? ' · 배변' : ''}`}
                   trailing={<DeleteButton onClick={() => records.removeWalk(w.id)} />}
                 />
