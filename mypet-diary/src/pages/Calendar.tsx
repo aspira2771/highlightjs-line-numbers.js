@@ -11,7 +11,14 @@ import {
   startOfWeek,
   subMonths,
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Stethoscope,
+  Sun,
+} from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
 import { Modal } from '@/components/common/Modal';
@@ -22,7 +29,9 @@ import { usePetStore } from '@/stores/petStore';
 import { useCareStore } from '@/stores/careStore';
 import { useRecordsStore } from '@/stores/recordsStore';
 import { SYMPTOM_LABELS } from '@/features/symptom/AddSymptomForm';
-import { CARE_ICONS, CARE_LABELS } from '@/utils/careLabels';
+import { PhotoAlbum } from '@/features/memory/PhotoAlbum';
+import { CARE_LABELS } from '@/utils/careLabels';
+import { CARE_ICON_COMPONENTS } from '@/utils/careIcons';
 import { cn } from '@/utils/cn';
 
 function buildMonthGrid(anchor: Date): Date[] {
@@ -34,7 +43,7 @@ function buildMonthGrid(anchor: Date): Date[] {
   return days;
 }
 
-export function CalendarPage() {
+export function CalendarPage({ embedded }: { embedded?: boolean }) {
   const activePet = usePetStore((s) =>
     s.pets.find((p) => p.id === s.activePetId),
   );
@@ -48,11 +57,12 @@ export function CalendarPage() {
   const [open, setOpen] = useState(false);
 
   if (!activePet) {
+    if (embedded) return null;
     return (
       <div className="page">
         <PageHeader title="캘린더" />
         <EmptyState
-          emoji="📅"
+          icon={<CalendarDays size={26} />}
           title="등록된 반려동물이 없어요"
           description="마이펫 탭에서 먼저 등록해주세요."
         />
@@ -75,7 +85,10 @@ export function CalendarPage() {
         (isSameDay(parseISO(h.visitDate), date) ||
           (h.nextVisitDate && isSameDay(parseISO(h.nextVisitDate), date))),
     );
-    return { careOnDay, hospitalOnDay };
+    const photosOnDay = records.photos.filter(
+      (p) => p.petId === activePet.id && isSameDay(parseISO(p.takenAt), date),
+    );
+    return { careOnDay, hospitalOnDay, photosOnDay };
   };
 
   const { careOnDay, hospitalOnDay } = eventsForDay(selected);
@@ -120,11 +133,8 @@ export function CalendarPage() {
     (t) => t.petId === activePet.id && inThisMonth(t.recordedAt),
   ).length;
 
-  return (
-    <div className="page">
-      <PageHeader title="캘린더" subtitle={`${activePet.name}의 일정`} />
-      <PetSwitcher />
-
+  const content = (
+    <>
       <Card>
         <div className="mb-3 flex items-center justify-between">
           <button
@@ -153,8 +163,12 @@ export function CalendarPage() {
             const inMonth =
               day >= startOfMonth(anchor) && day <= endOfMonth(anchor);
             const isSelected = isSameDay(day, selected);
-            const { careOnDay: cs, hospitalOnDay: hs } = eventsForDay(day);
-            const hasEvent = cs.length > 0 || hs.length > 0;
+            const {
+              careOnDay: cs,
+              hospitalOnDay: hs,
+              photosOnDay: ps,
+            } = eventsForDay(day);
+            const hasEvent = cs.length > 0 || hs.length > 0 || ps.length > 0;
             return (
               <button
                 key={day.toISOString()}
@@ -197,15 +211,19 @@ export function CalendarPage() {
       >
         {careOnDay.length === 0 && hospitalOnDay.length === 0 ? (
           <EmptyState
-            emoji="🌤️"
+            icon={<Sun size={26} />}
             title="이날은 일정이 없어요"
             description="여유로운 하루를 보내세요."
           />
         ) : (
           <ul className="space-y-2">
-            {careOnDay.map((item) => (
+            {careOnDay.map((item) => {
+              const Icon = CARE_ICON_COMPONENTS[item.type];
+              return (
               <li key={item.id} className="flex items-center gap-3">
-                <span className="text-xl">{CARE_ICONS[item.type]}</span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-soft bg-gray-100 text-gray-600">
+                  <Icon size={18} />
+                </span>
                 <div>
                   <p className="text-sm font-semibold">
                     {item.title || CARE_LABELS[item.type]}
@@ -216,10 +234,13 @@ export function CalendarPage() {
                   </p>
                 </div>
               </li>
-            ))}
+              );
+            })}
             {hospitalOnDay.map((h) => (
               <li key={h.id} className="flex items-center gap-3">
-                <span className="text-xl">🏥</span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-soft bg-gray-100 text-gray-600">
+                  <Stethoscope size={18} />
+                </span>
                 <div>
                   <p className="text-sm font-semibold">{h.hospitalName}</p>
                   <p className="text-xs text-muted">
@@ -264,6 +285,8 @@ export function CalendarPage() {
           </div>
         </div>
       </Card>
+
+      <PhotoAlbum petId={activePet.id} date={selected} />
 
       <Card className="mt-4" title="병원 리포트">
         {/* Recent vitals/symptoms summary for vet visits. */}
@@ -339,6 +362,15 @@ export function CalendarPage() {
         )}
         <AddHospitalForm petId={activePet.id} onClose={() => setOpen(false)} />
       </Modal>
+    </>
+  );
+
+  if (embedded) return content;
+  return (
+    <div className="page">
+      <PageHeader title="캘린더" subtitle={`${activePet.name}의 일정`} />
+      <PetSwitcher />
+      {content}
     </div>
   );
 }

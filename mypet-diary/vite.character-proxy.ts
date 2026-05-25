@@ -101,6 +101,10 @@ export function characterProxy(apiKey?: string): Plugin {
 
             if (!openaiRes.ok) {
               const detail = await openaiRes.text();
+              console.error(
+                `[character-proxy] OpenAI ${openaiRes.status} (input ${mime}, ${buffer.length} bytes):`,
+                detail.slice(0, 800),
+              );
               return sendJson(res, 502, {
                 error: 'AI 캐릭터 생성에 실패했어요. 잠시 후 다시 시도해주세요.',
                 detail: detail.slice(0, 500),
@@ -118,6 +122,7 @@ export function characterProxy(apiKey?: string): Plugin {
             }
             return sendJson(res, 200, { image: `data:image/png;base64,${b64}` });
           } catch (err) {
+            console.error('[character-proxy] error:', err);
             return sendJson(res, 500, {
               error: '서버 처리 중 오류가 났어요.',
               detail: err instanceof Error ? err.message : String(err),

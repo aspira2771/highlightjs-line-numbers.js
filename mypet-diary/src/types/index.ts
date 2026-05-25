@@ -177,6 +177,15 @@ export interface TreatRecord {
   note?: string;
 }
 
+/** A photo in the calendar photo album / memory diary. */
+export interface PhotoMemory {
+  id: string;
+  petId: string;
+  photoUrl: string; // downscaled data URL
+  takenAt: string; // ISO date
+  caption?: string;
+}
+
 export interface PointTransaction {
   id: string;
   amount: number;

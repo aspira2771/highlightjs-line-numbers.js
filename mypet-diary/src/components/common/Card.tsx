@@ -27,19 +27,21 @@ export function Card({
 }
 
 export function EmptyState({
-  emoji = '🐾',
+  icon,
   title,
   description,
   action,
 }: {
-  emoji?: string;
+  icon?: ReactNode;
   title: string;
   description?: string;
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-soft bg-white/60 px-6 py-10 text-center">
-      <div className="text-4xl">{emoji}</div>
+    <div className="flex flex-col items-center justify-center gap-3 rounded-card bg-surface/60 px-6 py-12 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+        {icon}
+      </div>
       <p className="text-base font-bold text-ink">{title}</p>
       {description && (
         <p className="max-w-xs text-sm text-muted">{description}</p>

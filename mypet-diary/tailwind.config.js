@@ -4,49 +4,55 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Toss-style blue as the primary action color.
+        // Charcoal/black as the primary action color (buttons, active chips, CTAs).
         primary: {
-          DEFAULT: '#3182F6',
-          50: '#EAF2FE',
-          100: '#C9DEFB',
-          200: '#90BFF9',
-          300: '#5A9CF8',
-          400: '#3182F6',
-          500: '#1B64DA',
+          DEFAULT: '#1A1A1A',
+          50: '#F3F3F1',
+          100: '#E4E3DF',
+          200: '#C4C2BB',
+          300: '#8A887F',
+          400: '#2E2E2C',
+          500: '#111111',
         },
-        // Toss success green (used sparingly, e.g. completed/positive states).
+        // Soft sage green for positive/completed states.
         secondary: {
-          DEFAULT: '#00C471',
-          50: '#E7F9F1',
-          100: '#C2EFD9',
-          200: '#7FDCAE',
-          300: '#00C471',
+          DEFAULT: '#7FB99A',
+          50: '#EAF4EF',
+          100: '#CDE7DA',
+          200: '#9FD3B8',
+          300: '#5AA07F',
         },
-        // Reward/points accent.
+        // Warm gold for stars, ratings, rewards/points.
         accent: {
-          DEFAULT: '#F5C147',
+          DEFAULT: '#F5C84B',
           50: '#FEF7E4',
-          100: '#FCEBB6',
-          200: '#F5C147',
+          100: '#FBE9B0',
+          200: '#F5C84B',
         },
-        // Toss neutral gray scale.
+        // Pastel chips for tags (e.g. nutrient/symptom labels).
+        tag: {
+          mint: '#CFECE0',
+          peach: '#FBE0CE',
+          sky: '#D6E8F5',
+        },
+        // Warm neutral gray scale.
         gray: {
-          50: '#F9FAFB',
-          100: '#F2F4F6',
-          200: '#E5E8EB',
-          300: '#D1D6DB',
-          400: '#B0B8C1',
-          500: '#8B95A1',
-          600: '#6B7684',
-          700: '#4E5968',
-          800: '#333D4B',
-          900: '#191F28',
+          50: '#FAF9F6',
+          100: '#F3F2EE',
+          200: '#E9E7E1',
+          300: '#D8D5CC',
+          400: '#B6B2A7',
+          500: '#97948B',
+          600: '#726F67',
+          700: '#54524C',
+          800: '#36352F',
+          900: '#1A1A1A',
         },
-        bg: '#F2F4F6', // app background (Toss light gray)
+        bg: '#F3F2EE', // warm off-white app background
         surface: '#FFFFFF', // cards / sheets
-        ink: '#191F28', // primary text
-        muted: '#8B95A1', // secondary text
-        line: '#E5E8EB', // borders / dividers
+        ink: '#1A1A1A', // primary text
+        muted: '#97948B', // secondary text
+        line: '#E9E7E1', // borders / dividers
       },
       fontFamily: {
         sans: [
@@ -60,13 +66,13 @@ export default {
       },
       borderRadius: {
         soft: '1rem',
-        card: '1.25rem',
+        card: '1.5rem',
         pill: '999px',
       },
       boxShadow: {
-        soft: '0 1px 3px rgba(0, 0, 0, 0.06)',
-        card: '0 2px 8px rgba(0, 0, 0, 0.06)',
-        float: '0 8px 24px rgba(0, 0, 0, 0.12)',
+        soft: '0 1px 2px rgba(0, 0, 0, 0.04)',
+        card: '0 4px 16px rgba(0, 0, 0, 0.05)',
+        float: '0 10px 30px rgba(0, 0, 0, 0.12)',
       },
       keyframes: {
         bounceSoft: {

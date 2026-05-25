@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { PawPrint, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
 import { Modal } from '@/components/common/Modal';
@@ -37,11 +37,8 @@ function Toggle({
     </button>
   );
 }
-import {
-  CARE_ICONS,
-  CARE_LABELS,
-  SPECIES_LABELS,
-} from '@/utils/careLabels';
+import { CARE_LABELS, SPECIES_LABELS } from '@/utils/careLabels';
+import { CARE_ICON_COMPONENTS } from '@/utils/careIcons';
 import { ageInYears } from '@/utils/date';
 
 export function MyPetPage() {
@@ -92,7 +89,7 @@ export function MyPetPage() {
 
       {pets.length === 0 && (
         <EmptyState
-          emoji="🐾"
+          icon={<PawPrint size={26} />}
           title="첫 친구를 등록해보세요"
           description="이름·종·사진을 등록하면 자동으로 케어 리스트를 추천해줘요."
           action={<Button onClick={() => setAddOpen(true)}>지금 등록하기</Button>}
@@ -159,11 +156,17 @@ export function MyPetPage() {
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {pet.careTemplate.map((type) => (
-                    <span key={type} className="pill bg-primary-50 text-ink">
-                      {CARE_ICONS[type]} {CARE_LABELS[type]}
-                    </span>
-                  ))}
+                  {pet.careTemplate.map((type) => {
+                    const Icon = CARE_ICON_COMPONENTS[type];
+                    return (
+                      <span
+                        key={type}
+                        className="pill gap-1 bg-gray-100 text-gray-700"
+                      >
+                        <Icon size={12} /> {CARE_LABELS[type]}
+                      </span>
+                    );
+                  })}
                 </div>
                 {pet.notes && (
                   <p className="mt-3 rounded-soft bg-bg p-2 text-xs text-muted">

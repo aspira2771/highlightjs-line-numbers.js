@@ -1,14 +1,20 @@
 import { useState } from 'react';
-import { MapPin, Plus, Route } from 'lucide-react';
-import { Button } from '@/components/common/Button';
+import {
+  Cookie,
+  FlaskConical,
+  Notebook,
+  Pill,
+  Plus,
+  Stethoscope,
+  Turtle,
+  UtensilsCrossed,
+} from 'lucide-react';
 import { Card, EmptyState } from '@/components/common/Card';
 import { Modal } from '@/components/common/Modal';
 import { PageHeader } from '@/components/common/PageHeader';
 import { PetSwitcher } from '@/features/pet/PetSwitcher';
 import { AddMealForm } from '@/features/meal/AddMealForm';
 import { AddWeightForm } from '@/features/weight/AddWeightForm';
-import { AddWalkForm } from '@/features/walk/AddWalkForm';
-import { WalkTracker } from '@/features/walk/WalkTracker';
 import { AddMedicationForm } from '@/features/medication/AddMedicationForm';
 import { AddSupplementForm } from '@/features/supplement/AddSupplementForm';
 import { AddTreatForm } from '@/features/treat/AddTreatForm';
@@ -18,20 +24,16 @@ import {
 } from '@/features/symptom/AddSymptomForm';
 import { AddReptileEnvForm } from '@/features/reptile/AddReptileEnvForm';
 import { WeightChart, weightAdvisory } from '@/components/charts/WeightChart';
-import { WalkMap } from '@/components/walk/WalkMap';
 import { usePetStore } from '@/stores/petStore';
 import { useRecordsStore } from '@/stores/recordsStore';
 import { formatKoreanDate, formatKoreanTime, isToday } from '@/utils/date';
-import { formatDistance } from '@/utils/geo';
 import type {
-  GeoPoint,
   MealRecord,
   Medication,
   ReptileEnvironment,
   Supplement,
   SymptomNote,
   TreatRecord,
-  WalkRecord,
   WeightRecord,
 } from '@/types';
 
@@ -39,7 +41,6 @@ type Tab =
   | 'weight'
   | 'meal'
   | 'treat'
-  | 'walk'
   | 'medication'
   | 'supplement'
   | 'symptom'
@@ -50,7 +51,6 @@ type EditTarget =
   | { tab: 'weight'; record: WeightRecord }
   | { tab: 'meal'; record: MealRecord }
   | { tab: 'treat'; record: TreatRecord }
-  | { tab: 'walk'; record: WalkRecord }
   | { tab: 'medication'; record: Medication }
   | { tab: 'supplement'; record: Supplement }
   | { tab: 'symptom'; record: SymptomNote }
@@ -62,7 +62,12 @@ const SHEDDING_LABELS: Record<string, string> = {
   abnormal: '이상 있음',
 };
 
-export function RecordsPage() {
+interface Props {
+  /** When embedded inside the Diary page, skip the page chrome/header. */
+  embedded?: boolean;
+}
+
+export function RecordsPage({ embedded }: Props) {
   const activePet = usePetStore((s) =>
     s.pets.find((p) => p.id === s.activePetId),
   );
@@ -70,8 +75,6 @@ export function RecordsPage() {
   const [tab, setTab] = useState<Tab>('weight');
   const [open, setOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
-  const [tracking, setTracking] = useState(false);
-  const [viewingPath, setViewingPath] = useState<GeoPoint[] | null>(null);
 
   const openEdit = (target: EditTarget) => {
     setEditTarget(target);
@@ -83,11 +86,12 @@ export function RecordsPage() {
   };
 
   if (!activePet) {
+    if (embedded) return null;
     return (
       <div className="page">
         <PageHeader title="기록" />
         <EmptyState
-          emoji="📓"
+          icon={<Notebook size={26} />}
           title="등록된 반려동물이 없어요"
           description="마이펫 탭에서 먼저 등록해주세요."
         />
@@ -98,7 +102,6 @@ export function RecordsPage() {
   const petId = activePet.id;
   const weights = records.weights.filter((r) => r.petId === petId);
   const meals = records.meals.filter((r) => r.petId === petId);
-  const walks = records.walks.filter((r) => r.petId === petId);
   const medications = records.medications.filter((r) => r.petId === petId);
   const supplements = records.supplements.filter((r) => r.petId === petId);
   const symptoms = records.symptoms.filter((r) => r.petId === petId);
@@ -111,7 +114,6 @@ export function RecordsPage() {
     { id: 'weight', label: '체중' },
     { id: 'meal', label: '식사' },
     { id: 'treat', label: '간식' },
-    { id: 'walk', label: '산책' },
     { id: 'medication', label: '약' },
     { id: 'supplement', label: '영양제' },
     { id: 'symptom', label: '증상' },
@@ -120,20 +122,15 @@ export function RecordsPage() {
       : []),
   ];
 
-  return (
-    <div className="page">
-      <PageHeader title="기록" subtitle={`${activePet.name}의 건강 기록`} />
-      <PetSwitcher />
-
+  const body = (
+    <>
       <div className="mb-4 flex gap-2 overflow-x-auto pb-2">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`shrink-0 rounded-pill px-4 py-1.5 text-sm font-semibold transition ${
-              tab === t.id
-                ? 'bg-primary text-white'
-                : 'bg-white text-muted'
+              tab === t.id ? 'bg-primary text-white' : 'bg-white text-muted'
             }`}
           >
             {t.label}
@@ -187,7 +184,7 @@ export function RecordsPage() {
         <ul className="space-y-2">
           {meals.length === 0 && (
             <EmptyState
-              emoji="🍚"
+              icon={<UtensilsCrossed size={26} />}
               title="식사 기록이 없어요"
               description="아래 + 버튼으로 추가하세요."
             />
@@ -231,79 +228,11 @@ export function RecordsPage() {
         </ul>
       )}
 
-      {tab === 'walk' && (
-        <>
-          <Button
-            block
-            className="mb-4"
-            leftIcon={<MapPin size={18} />}
-            onClick={() => setTracking(true)}
-          >
-            GPS 산책 시작
-          </Button>
-          <ul className="space-y-2">
-            {walks.length === 0 && (
-              <EmptyState
-                emoji="🐾"
-                title="산책 기록이 없어요"
-                description="위 버튼으로 산책을 시작하거나 + 로 직접 기록하세요."
-              />
-            )}
-            {walks
-              .slice()
-              .reverse()
-              .map((w) => (
-                <li key={w.id} className="card">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-semibold">
-                        {w.durationMinutes}분
-                        {typeof w.distanceMeters === 'number' &&
-                          ` · ${formatDistance(w.distanceMeters)}`}
-                      </p>
-                      <p className="text-xs text-muted">
-                        {formatKoreanDate(w.startedAt)} ·{' '}
-                        {formatKoreanTime(w.startedAt)}
-                        {w.weather && ` · ${w.weather}`}
-                        {w.hadBowelMovement && ' · 배변 있음'}
-                      </p>
-                      {w.note && <p className="mt-1 text-sm">{w.note}</p>}
-                      {w.path && w.path.length > 1 && (
-                        <button
-                          className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary-500"
-                          onClick={() => setViewingPath(w.path ?? null)}
-                        >
-                          <Route size={14} />
-                          지도 보기
-                        </button>
-                      )}
-                    </div>
-                    <div className="flex shrink-0 gap-3 text-xs">
-                      <button
-                        className="text-muted"
-                        onClick={() => openEdit({ tab: 'walk', record: w })}
-                      >
-                        수정
-                      </button>
-                      <button
-                        className="text-red-500"
-                        onClick={() => records.removeWalk(w.id)}
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-          </ul>
-        </>
-      )}
-
       {tab === 'medication' && (
         <ul className="space-y-2">
           {medications.length === 0 && (
             <EmptyState
-              emoji="💊"
+              icon={<Pill size={26} />}
               title="등록된 약이 없어요"
               description="복용 중인 약을 등록하세요."
             />
@@ -347,7 +276,7 @@ export function RecordsPage() {
         <ul className="space-y-2">
           {supplements.length === 0 && (
             <EmptyState
-              emoji="🧪"
+              icon={<FlaskConical size={26} />}
               title="등록된 영양제가 없어요"
               description="꾸준히 챙기는 영양제를 등록해보세요."
             />
@@ -398,7 +327,7 @@ export function RecordsPage() {
           )}
           {treats.length === 0 && (
             <EmptyState
-              emoji="🍪"
+              icon={<Cookie size={26} />}
               title="간식 기록이 없어요"
               description="간식도 기록하면 과다 급여를 막을 수 있어요."
             />
@@ -446,7 +375,7 @@ export function RecordsPage() {
         <ul className="space-y-2">
           {symptoms.length === 0 && (
             <EmptyState
-              emoji="🩺"
+              icon={<Stethoscope size={26} />}
               title="증상 기록이 없어요"
               description="이상이 보이면 기록해두면 병원 방문 때 도움이 돼요."
             />
@@ -498,7 +427,7 @@ export function RecordsPage() {
         <ul className="space-y-2">
           {reptileEnvs.length === 0 && (
             <EmptyState
-              emoji="🦎"
+              icon={<Turtle size={26} />}
               title="환경 기록이 없어요"
               description="습도·온도·탈피 상태를 기록해 관리해요."
             />
@@ -580,14 +509,6 @@ export function RecordsPage() {
             onClose={closeModal}
           />
         )}
-        {tab === 'walk' && (
-          <AddWalkForm
-            key={editTarget?.record.id ?? 'new'}
-            petId={petId}
-            editing={editTarget?.tab === 'walk' ? editTarget.record : null}
-            onClose={closeModal}
-          />
-        )}
         {tab === 'medication' && (
           <AddMedicationForm
             key={editTarget?.record.id ?? 'new'}
@@ -635,22 +556,16 @@ export function RecordsPage() {
           />
         )}
       </Modal>
+    </>
+  );
 
-      <Modal
-        open={tracking}
-        onClose={() => setTracking(false)}
-        title="GPS 산책"
-      >
-        <WalkTracker petId={petId} onClose={() => setTracking(false)} />
-      </Modal>
+  if (embedded) return body;
 
-      <Modal
-        open={viewingPath !== null}
-        onClose={() => setViewingPath(null)}
-        title="산책 경로"
-      >
-        {viewingPath && <WalkMap path={viewingPath} />}
-      </Modal>
+  return (
+    <div className="page">
+      <PageHeader title="기록" subtitle={`${activePet.name}의 건강 기록`} />
+      <PetSwitcher />
+      {body}
     </div>
   );
 }

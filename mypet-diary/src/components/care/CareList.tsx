@@ -1,3 +1,4 @@
+import { Sprout } from 'lucide-react';
 import type { CareItem, CareItemType } from '@/types';
 import { CareRow } from './CareRow';
 import { EmptyState } from '@/components/common/Card';
@@ -32,7 +33,7 @@ export function CareList({ items, onToggle, onRemove }: Props) {
   if (items.length === 0) {
     return (
       <EmptyState
-        emoji="🌱"
+        icon={<Sprout size={26} />}
         title="오늘 등록된 케어가 없어요"
         description="마이펫 탭에서 일정을 추가해보세요."
       />

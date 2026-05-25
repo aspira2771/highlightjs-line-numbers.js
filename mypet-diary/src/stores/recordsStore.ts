@@ -4,6 +4,7 @@ import type {
   HospitalRecord,
   MealRecord,
   Medication,
+  PhotoMemory,
   ReptileEnvironment,
   Supplement,
   SymptomNote,
@@ -23,6 +24,7 @@ interface RecordsState {
   reptileEnvs: ReptileEnvironment[];
   symptoms: SymptomNote[];
   treats: TreatRecord[];
+  photos: PhotoMemory[];
 
   addWeight: (input: Omit<WeightRecord, 'id'>) => WeightRecord;
   addMeal: (input: Omit<MealRecord, 'id'>) => MealRecord;
@@ -33,6 +35,7 @@ interface RecordsState {
   addReptileEnv: (input: Omit<ReptileEnvironment, 'id'>) => ReptileEnvironment;
   addSymptom: (input: Omit<SymptomNote, 'id'>) => SymptomNote;
   addTreat: (input: Omit<TreatRecord, 'id'>) => TreatRecord;
+  addPhoto: (input: Omit<PhotoMemory, 'id'>) => PhotoMemory;
 
   updateWeight: (id: string, patch: RecordPatch<WeightRecord>) => void;
   updateMeal: (id: string, patch: RecordPatch<MealRecord>) => void;
@@ -42,6 +45,7 @@ interface RecordsState {
   updateReptileEnv: (id: string, patch: RecordPatch<ReptileEnvironment>) => void;
   updateSymptom: (id: string, patch: RecordPatch<SymptomNote>) => void;
   updateTreat: (id: string, patch: RecordPatch<TreatRecord>) => void;
+  updatePhoto: (id: string, patch: RecordPatch<PhotoMemory>) => void;
 
   removeWeight: (id: string) => void;
   removeMeal: (id: string) => void;
@@ -52,6 +56,7 @@ interface RecordsState {
   removeReptileEnv: (id: string) => void;
   removeSymptom: (id: string) => void;
   removeTreat: (id: string) => void;
+  removePhoto: (id: string) => void;
 }
 
 /** Fields editable on a record — id and petId stay fixed. */
@@ -83,6 +88,7 @@ export const useRecordsStore = create<RecordsState>()(
       reptileEnvs: [],
       symptoms: [],
       treats: [],
+      photos: [],
 
       addWeight: (input) => {
         const item = { ...input, id: uid('w') };
@@ -129,6 +135,11 @@ export const useRecordsStore = create<RecordsState>()(
         set((state) => ({ treats: append(state.treats, item) }));
         return item;
       },
+      addPhoto: (input) => {
+        const item = { ...input, id: uid('photo') };
+        set((state) => ({ photos: append(state.photos, item) }));
+        return item;
+      },
 
       updateWeight: (id, patch) =>
         set((state) => ({ weights: patchById(state.weights, id, patch) })),
@@ -152,6 +163,8 @@ export const useRecordsStore = create<RecordsState>()(
         set((state) => ({ symptoms: patchById(state.symptoms, id, patch) })),
       updateTreat: (id, patch) =>
         set((state) => ({ treats: patchById(state.treats, id, patch) })),
+      updatePhoto: (id, patch) =>
+        set((state) => ({ photos: patchById(state.photos, id, patch) })),
 
       removeWeight: (id) =>
         set((state) => ({ weights: state.weights.filter((x) => x.id !== id) })),
@@ -181,6 +194,8 @@ export const useRecordsStore = create<RecordsState>()(
         })),
       removeTreat: (id) =>
         set((state) => ({ treats: state.treats.filter((x) => x.id !== id) })),
+      removePhoto: (id) =>
+        set((state) => ({ photos: state.photos.filter((x) => x.id !== id) })),
     }),
     { name: 'mypet:records' },
   ),

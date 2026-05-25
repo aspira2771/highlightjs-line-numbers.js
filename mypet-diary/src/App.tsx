@@ -1,5 +1,6 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { PawPrint } from 'lucide-react';
 import { BottomTab } from '@/components/common/BottomTab';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { useAuthStore, initAuth } from '@/stores/authStore';
@@ -9,11 +10,11 @@ import { useCareReminder } from '@/hooks/useCareReminder';
 const HomePage = lazy(() =>
   import('@/pages/Home').then((m) => ({ default: m.HomePage })),
 );
-const RecordsPage = lazy(() =>
-  import('@/pages/Records').then((m) => ({ default: m.RecordsPage })),
+const DiaryPage = lazy(() =>
+  import('@/pages/Diary').then((m) => ({ default: m.DiaryPage })),
 );
-const CalendarPage = lazy(() =>
-  import('@/pages/Calendar').then((m) => ({ default: m.CalendarPage })),
+const WalkPage = lazy(() =>
+  import('@/pages/Walk').then((m) => ({ default: m.WalkPage })),
 );
 const CommunityPage = lazy(() =>
   import('@/pages/Community').then((m) => ({ default: m.CommunityPage })),
@@ -24,8 +25,8 @@ const MyPetPage = lazy(() =>
 
 function Splash() {
   return (
-    <div className="flex h-full min-h-screen items-center justify-center bg-surface text-4xl">
-      <span className="animate-bounceSoft">🐾</span>
+    <div className="flex h-full min-h-screen items-center justify-center bg-surface text-gray-400">
+      <PawPrint className="animate-bounceSoft" size={40} />
     </div>
   );
 }
@@ -51,9 +52,10 @@ function App() {
       <Suspense fallback={<Splash />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/records" element={<RecordsPage />} />
-          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/records" element={<DiaryPage />} />
+          <Route path="/calendar" element={<Navigate to="/records" replace />} />
           <Route path="/community" element={<CommunityPage />} />
+          <Route path="/walk" element={<WalkPage />} />
           <Route path="/mypet" element={<MyPetPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

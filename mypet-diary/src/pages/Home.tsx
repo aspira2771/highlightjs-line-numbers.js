@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Flame, Sparkles, BellRing } from 'lucide-react';
+import { Plus, Flame, Sparkles, BellRing, PawPrint } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
@@ -51,7 +51,7 @@ export function HomePage() {
     return (
       <div className="page">
         <EmptyState
-          emoji="🐾"
+          icon={<PawPrint size={26} />}
           title="아직 등록된 반려동물이 없어요"
           description="마이펫 탭에서 첫 친구를 만나러 가요!"
           action={

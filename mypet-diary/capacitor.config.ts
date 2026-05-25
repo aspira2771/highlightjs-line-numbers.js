@@ -4,7 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.mypet.diary',
   appName: '마이펫 다이어리',
   webDir: 'dist',
-  backgroundColor: '#FFFFFF',
+  backgroundColor: '#F3F2EE',
   ios: {
     contentInset: 'always',
   },
@@ -14,7 +14,7 @@ const config: CapacitorConfig = {
   plugins: {
     LocalNotifications: {
       smallIcon: 'ic_stat_icon_config_sample',
-      iconColor: '#3182F6',
+      iconColor: '#1A1A1A',
     },
   },
 };

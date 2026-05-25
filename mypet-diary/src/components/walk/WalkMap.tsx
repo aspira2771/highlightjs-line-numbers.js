@@ -44,7 +44,11 @@ export function WalkMap({ path, follow, className }: Props) {
   const current = path.length > 0 ? path[path.length - 1] : null;
 
   return (
-    <div className={className ?? 'h-64 w-full overflow-hidden rounded-soft'}>
+    // `isolate` contains Leaflet's high internal z-indexes so they don't render
+    // above modals/overlays elsewhere on the page.
+    <div
+      className={`isolate ${className ?? 'h-64 w-full overflow-hidden rounded-soft'}`}
+    >
       <MapContainer
         center={center}
         zoom={16}

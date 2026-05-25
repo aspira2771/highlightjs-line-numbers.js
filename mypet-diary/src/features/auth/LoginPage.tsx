@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PawPrint } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { loginWithProvider, type SocialProvider } from './providers';
 
@@ -43,8 +44,8 @@ export function LoginPage() {
     <div className="mx-auto flex h-full min-h-screen max-w-md flex-col bg-surface px-6">
       {/* Brand / hero */}
       <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <div className="flex h-24 w-24 items-center justify-center rounded-card bg-primary-50 text-5xl shadow-soft">
-          🐾
+        <div className="flex h-24 w-24 items-center justify-center rounded-card bg-primary text-white shadow-soft">
+          <PawPrint size={44} strokeWidth={1.8} />
         </div>
         <h1 className="mt-6 text-2xl font-extrabold text-ink">마이펫 다이어리</h1>
         <p className="mt-2 text-[15px] leading-relaxed text-gray-600">
