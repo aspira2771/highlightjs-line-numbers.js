@@ -11,11 +11,13 @@
 const ENDPOINT = 'https://api.openai.com/v1/images/edits';
 
 const PROMPT =
-  'Transform this pet into a cute, iconic 3D-rendered mascot character in a ' +
-  'Pixar / Disney animation style: big expressive friendly eyes, soft rounded ' +
-  'shapes, smooth glossy fur, gentle studio lighting, vibrant but warm colors. ' +
-  'Keep the animal’s species, breed, fur color and markings recognizable. ' +
-  'Centered, full body or head-and-shoulders, facing forward, transparent background.';
+  'Transform this pet into an adorable soft plush mascot character, in the style ' +
+  'of cute felted-wool designer toys / Korean city mascots (like Seoul Friends): ' +
+  'fuzzy matte needle-felted wool texture (NOT glossy), very round chubby body, ' +
+  'short stubby limbs, oversized head, big simple round glossy eyes, tiny cute ' +
+  'smile, pastel color palette, soft even studio lighting, squishy kawaii blind-box ' +
+  'toy feel. Keep the animal’s species, breed, fur color and markings recognizable. ' +
+  'Single character, centered, facing forward, full body, transparent background.';
 
 export function hasOpenAIKey(): boolean {
   return Boolean(import.meta.env.VITE_OPENAI_API_KEY);
