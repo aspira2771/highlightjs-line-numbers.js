@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Plus, Flame, Sparkles, BellRing } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
@@ -29,6 +29,12 @@ export function HomePage() {
   const toggle = useCareStore((s) => s.toggle);
   const remove = useCareStore((s) => s.remove);
   const addItem = useCareStore((s) => s.addItem);
+  const materializeRecurring = useCareStore((s) => s.materializeRecurring);
+
+  // Spawn today's recurring care occurrences when the pet's home opens.
+  useEffect(() => {
+    if (activePet) materializeRecurring(activePet.id);
+  }, [activePet?.id, materializeRecurring]);
 
   const award = usePointsStore((s) => s.award);
   const markStreak = usePointsStore((s) => s.markStreak);

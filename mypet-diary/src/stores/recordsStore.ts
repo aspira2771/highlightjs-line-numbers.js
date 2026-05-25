@@ -6,6 +6,8 @@ import type {
   Medication,
   ReptileEnvironment,
   Supplement,
+  SymptomNote,
+  TreatRecord,
   WalkRecord,
   WeightRecord,
 } from '@/types';
@@ -19,6 +21,8 @@ interface RecordsState {
   supplements: Supplement[];
   hospitals: HospitalRecord[];
   reptileEnvs: ReptileEnvironment[];
+  symptoms: SymptomNote[];
+  treats: TreatRecord[];
 
   addWeight: (input: Omit<WeightRecord, 'id'>) => WeightRecord;
   addMeal: (input: Omit<MealRecord, 'id'>) => MealRecord;
@@ -27,12 +31,17 @@ interface RecordsState {
   addSupplement: (input: Omit<Supplement, 'id'>) => Supplement;
   addHospital: (input: Omit<HospitalRecord, 'id'>) => HospitalRecord;
   addReptileEnv: (input: Omit<ReptileEnvironment, 'id'>) => ReptileEnvironment;
+  addSymptom: (input: Omit<SymptomNote, 'id'>) => SymptomNote;
+  addTreat: (input: Omit<TreatRecord, 'id'>) => TreatRecord;
 
   updateWeight: (id: string, patch: RecordPatch<WeightRecord>) => void;
   updateMeal: (id: string, patch: RecordPatch<MealRecord>) => void;
   updateWalk: (id: string, patch: RecordPatch<WalkRecord>) => void;
   updateMedication: (id: string, patch: RecordPatch<Medication>) => void;
   updateSupplement: (id: string, patch: RecordPatch<Supplement>) => void;
+  updateReptileEnv: (id: string, patch: RecordPatch<ReptileEnvironment>) => void;
+  updateSymptom: (id: string, patch: RecordPatch<SymptomNote>) => void;
+  updateTreat: (id: string, patch: RecordPatch<TreatRecord>) => void;
 
   removeWeight: (id: string) => void;
   removeMeal: (id: string) => void;
@@ -40,6 +49,9 @@ interface RecordsState {
   removeMedication: (id: string) => void;
   removeSupplement: (id: string) => void;
   removeHospital: (id: string) => void;
+  removeReptileEnv: (id: string) => void;
+  removeSymptom: (id: string) => void;
+  removeTreat: (id: string) => void;
 }
 
 /** Fields editable on a record — id and petId stay fixed. */
@@ -69,6 +81,8 @@ export const useRecordsStore = create<RecordsState>()(
       supplements: [],
       hospitals: [],
       reptileEnvs: [],
+      symptoms: [],
+      treats: [],
 
       addWeight: (input) => {
         const item = { ...input, id: uid('w') };
@@ -105,6 +119,16 @@ export const useRecordsStore = create<RecordsState>()(
         set((state) => ({ reptileEnvs: append(state.reptileEnvs, item) }));
         return item;
       },
+      addSymptom: (input) => {
+        const item = { ...input, id: uid('sym') };
+        set((state) => ({ symptoms: append(state.symptoms, item) }));
+        return item;
+      },
+      addTreat: (input) => {
+        const item = { ...input, id: uid('treat') };
+        set((state) => ({ treats: append(state.treats, item) }));
+        return item;
+      },
 
       updateWeight: (id, patch) =>
         set((state) => ({ weights: patchById(state.weights, id, patch) })),
@@ -120,6 +144,14 @@ export const useRecordsStore = create<RecordsState>()(
         set((state) => ({
           supplements: patchById(state.supplements, id, patch),
         })),
+      updateReptileEnv: (id, patch) =>
+        set((state) => ({
+          reptileEnvs: patchById(state.reptileEnvs, id, patch),
+        })),
+      updateSymptom: (id, patch) =>
+        set((state) => ({ symptoms: patchById(state.symptoms, id, patch) })),
+      updateTreat: (id, patch) =>
+        set((state) => ({ treats: patchById(state.treats, id, patch) })),
 
       removeWeight: (id) =>
         set((state) => ({ weights: state.weights.filter((x) => x.id !== id) })),
@@ -139,6 +171,16 @@ export const useRecordsStore = create<RecordsState>()(
         set((state) => ({
           hospitals: state.hospitals.filter((x) => x.id !== id),
         })),
+      removeReptileEnv: (id) =>
+        set((state) => ({
+          reptileEnvs: state.reptileEnvs.filter((x) => x.id !== id),
+        })),
+      removeSymptom: (id) =>
+        set((state) => ({
+          symptoms: state.symptoms.filter((x) => x.id !== id),
+        })),
+      removeTreat: (id) =>
+        set((state) => ({ treats: state.treats.filter((x) => x.id !== id) })),
     }),
     { name: 'mypet:records' },
   ),

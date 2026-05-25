@@ -148,6 +148,35 @@ export interface ReptileEnvironment {
   note?: string;
 }
 
+/** Observed abnormality note — caretaker observation, never a diagnosis. */
+export type SymptomKind =
+  | 'appetite'
+  | 'vomiting'
+  | 'diarrhea'
+  | 'lethargy'
+  | 'scratching'
+  | 'coughing'
+  | 'shedding'
+  | 'stool';
+
+export interface SymptomNote {
+  id: string;
+  petId: string;
+  recordedAt: string;
+  kinds: SymptomKind[];
+  severity?: 'mild' | 'moderate' | 'severe';
+  note?: string;
+}
+
+export interface TreatRecord {
+  id: string;
+  petId: string;
+  recordedAt: string;
+  name?: string;
+  amount?: string;
+  note?: string;
+}
+
 export interface PointTransaction {
   id: string;
   amount: number;

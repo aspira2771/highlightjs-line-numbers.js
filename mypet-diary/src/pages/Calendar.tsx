@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   addDays,
   addMonths,
+  differenceInCalendarDays,
   endOfMonth,
   format,
   isSameDay,
@@ -20,6 +21,7 @@ import { AddHospitalForm } from '@/features/hospital/AddHospitalForm';
 import { usePetStore } from '@/stores/petStore';
 import { useCareStore } from '@/stores/careStore';
 import { useRecordsStore } from '@/stores/recordsStore';
+import { SYMPTOM_LABELS } from '@/features/symptom/AddSymptomForm';
 import { CARE_ICONS, CARE_LABELS } from '@/utils/careLabels';
 import { cn } from '@/utils/cn';
 
@@ -37,8 +39,9 @@ export function CalendarPage() {
     s.pets.find((p) => p.id === s.activePetId),
   );
   const careItems = useCareStore((s) => s.items);
-  const hospitals = useRecordsStore((s) => s.hospitals);
-  const medications = useRecordsStore((s) => s.medications);
+  const records = useRecordsStore();
+  const hospitals = records.hospitals;
+  const medications = records.medications;
 
   const [anchor, setAnchor] = useState(new Date());
   const [selected, setSelected] = useState(new Date());
@@ -76,6 +79,46 @@ export function CalendarPage() {
   };
 
   const { careOnDay, hospitalOnDay } = eventsForDay(selected);
+
+  // ── Vet report summary (recent vitals/symptoms) ──
+  const petWeights = records.weights
+    .filter((w) => w.petId === activePet.id)
+    .slice()
+    .sort((a, b) => a.recordedAt.localeCompare(b.recordedAt));
+  const latestWeight = petWeights[petWeights.length - 1];
+  const prevWeight = petWeights[petWeights.length - 2];
+  const weightDelta =
+    latestWeight && prevWeight
+      ? +(latestWeight.weight - prevWeight.weight).toFixed(2)
+      : null;
+  const recentSymptoms = records.symptoms.filter(
+    (s) =>
+      s.petId === activePet.id &&
+      differenceInCalendarDays(new Date(), parseISO(s.recordedAt)) <= 14,
+  );
+  const activeMeds = medications.filter(
+    (m) =>
+      m.petId === activePet.id &&
+      (!m.endDate || parseISO(m.endDate) >= new Date()),
+  );
+
+  // ── This month's care summary ──
+  const inThisMonth = (iso: string) => {
+    const d = parseISO(iso);
+    return d >= startOfMonth(anchor) && d <= endOfMonth(anchor);
+  };
+  const monthCare = careItems.filter(
+    (c) => c.petId === activePet.id && inThisMonth(c.scheduledAt),
+  );
+  const monthDone = monthCare.filter((c) => c.completed).length;
+  const completionRate =
+    monthCare.length > 0 ? Math.round((monthDone / monthCare.length) * 100) : 0;
+  const monthWalks = records.walks.filter(
+    (w) => w.petId === activePet.id && inThisMonth(w.startedAt),
+  ).length;
+  const monthTreats = records.treats.filter(
+    (t) => t.petId === activePet.id && inThisMonth(t.recordedAt),
+  ).length;
 
   return (
     <div className="page">
@@ -190,7 +233,70 @@ export function CalendarPage() {
         )}
       </Card>
 
+      <Card className="mt-4" title={`${monthLabel} 케어 요약`}>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-soft bg-gray-100 p-3 text-center">
+            <p className="text-xs text-muted">케어 완료율</p>
+            <p className="text-xl font-bold text-primary">{completionRate}%</p>
+            <p className="text-[11px] text-muted">
+              {monthDone}/{monthCare.length}
+            </p>
+          </div>
+          <div className="rounded-soft bg-gray-100 p-3 text-center">
+            <p className="text-xs text-muted">산책</p>
+            <p className="text-xl font-bold">{monthWalks}회</p>
+          </div>
+          <div className="rounded-soft bg-gray-100 p-3 text-center">
+            <p className="text-xs text-muted">간식</p>
+            <p className="text-xl font-bold">{monthTreats}회</p>
+          </div>
+          <div className="rounded-soft bg-gray-100 p-3 text-center">
+            <p className="text-xs text-muted">현재 체중</p>
+            <p className="text-xl font-bold">
+              {latestWeight ? `${latestWeight.weight}kg` : '-'}
+            </p>
+            {weightDelta !== null && weightDelta !== 0 && (
+              <p className="text-[11px] text-muted">
+                {weightDelta > 0 ? '+' : ''}
+                {weightDelta}kg
+              </p>
+            )}
+          </div>
+        </div>
+      </Card>
+
       <Card className="mt-4" title="병원 리포트">
+        {/* Recent vitals/symptoms summary for vet visits. */}
+        <div className="mb-3 space-y-1.5 rounded-soft bg-primary-50 p-3 text-xs">
+          <p>
+            <span className="text-muted">최근 체중: </span>
+            {latestWeight
+              ? `${latestWeight.weight}kg${
+                  weightDelta !== null && weightDelta !== 0
+                    ? ` (${weightDelta > 0 ? '+' : ''}${weightDelta}kg)`
+                    : ''
+                }`
+              : '기록 없음'}
+          </p>
+          <p>
+            <span className="text-muted">복용 중인 약: </span>
+            {activeMeds.length > 0
+              ? activeMeds.map((m) => m.name).join(', ')
+              : '없음'}
+          </p>
+          <p>
+            <span className="text-muted">최근 2주 증상: </span>
+            {recentSymptoms.length > 0
+              ? Array.from(
+                  new Set(
+                    recentSymptoms.flatMap((s) =>
+                      s.kinds.map((k) => SYMPTOM_LABELS[k]),
+                    ),
+                  ),
+                ).join(', ')
+              : '없음'}
+          </p>
+        </div>
         {hospitals.filter((h) => h.petId === activePet.id).length === 0 ? (
           <p className="text-sm text-muted">
             아직 진료 기록이 없어요. 방문 후 기록해두면 다음 진료에 도움이 돼요.

@@ -8,7 +8,35 @@ import { Character } from '@/components/character/Character';
 import { PetForm } from '@/features/pet/PetForm';
 import { usePetStore } from '@/stores/petStore';
 import { useAuthStore } from '@/stores/authStore';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { useNotification } from '@/hooks/useNotification';
+
+/** Small Toss-style on/off switch. */
+function Toggle({
+  value,
+  onChange,
+}: {
+  value: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={value}
+      onClick={() => onChange(!value)}
+      className={`relative h-6 w-11 shrink-0 rounded-pill transition ${
+        value ? 'bg-primary' : 'bg-gray-300'
+      }`}
+    >
+      <span
+        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${
+          value ? 'left-[22px]' : 'left-0.5'
+        }`}
+      />
+    </button>
+  );
+}
 import {
   CARE_ICONS,
   CARE_LABELS,
@@ -25,6 +53,14 @@ export function MyPetPage() {
   const setActivePet = usePetStore((s) => s.setActivePet);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const careReminders = useSettingsStore((s) => s.careReminders);
+  const setCareReminders = useSettingsStore((s) => s.setCareReminders);
+  const celebrations = useSettingsStore((s) => s.celebrations);
+  const setCelebrations = useSettingsStore((s) => s.setCelebrations);
+  const reminderLeadMinutes = useSettingsStore((s) => s.reminderLeadMinutes);
+  const setReminderLeadMinutes = useSettingsStore(
+    (s) => s.setReminderLeadMinutes,
+  );
   const { permission, request } = useNotification();
 
   const PROVIDER_LABEL: Record<string, string> = {
@@ -180,6 +216,37 @@ export function MyPetPage() {
                 허용
               </Button>
             )}
+          </div>
+
+          <div className="flex items-center justify-between border-t border-line pt-3">
+            <div>
+              <p className="font-semibold">케어 알림</p>
+              <p className="text-xs text-muted">밥·약·산책 등 시간 알림</p>
+            </div>
+            <Toggle value={careReminders} onChange={setCareReminders} />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold">감성 메시지</p>
+              <p className="text-xs text-muted">연속 케어·축하 알림</p>
+            </div>
+            <Toggle value={celebrations} onChange={setCelebrations} />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold">미리 알림</p>
+              <p className="text-xs text-muted">예정 시간보다 일찍 알려줘요</p>
+            </div>
+            <select
+              value={reminderLeadMinutes}
+              onChange={(e) => setReminderLeadMinutes(Number(e.target.value))}
+              className="rounded-soft border border-line bg-surface px-2 py-1 text-sm"
+            >
+              <option value={0}>정시</option>
+              <option value={10}>10분 전</option>
+              <option value={30}>30분 전</option>
+              <option value={60}>1시간 전</option>
+            </select>
           </div>
         </div>
       </Card>
