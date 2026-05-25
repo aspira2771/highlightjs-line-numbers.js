@@ -2,30 +2,34 @@ import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/common/Button';
 import { Input, Textarea } from '@/components/common/Input';
 import { useRecordsStore } from '@/stores/recordsStore';
+import type { MealRecord } from '@/types';
 
 interface Props {
   petId: string;
+  editing?: MealRecord | null;
   onClose?: () => void;
 }
 
-export function AddMealForm({ petId, onClose }: Props) {
+export function AddMealForm({ petId, editing, onClose }: Props) {
   const addMeal = useRecordsStore((s) => s.addMeal);
-  const [foodName, setFoodName] = useState('');
-  const [amount, setAmount] = useState('');
-  const [recordedAt, setRecordedAt] = useState(
-    () => new Date().toISOString().slice(0, 16),
+  const updateMeal = useRecordsStore((s) => s.updateMeal);
+  const [foodName, setFoodName] = useState(editing?.foodName ?? '');
+  const [amount, setAmount] = useState(editing?.amount ?? '');
+  const [recordedAt, setRecordedAt] = useState(() =>
+    (editing?.recordedAt ?? new Date().toISOString()).slice(0, 16),
   );
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState(editing?.note ?? '');
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    addMeal({
-      petId,
+    const fields = {
       foodName: foodName.trim() || undefined,
       amount: amount.trim() || undefined,
       recordedAt: new Date(recordedAt).toISOString(),
       note: note.trim() || undefined,
-    });
+    };
+    if (editing) updateMeal(editing.id, fields);
+    else addMeal({ petId, ...fields });
     onClose?.();
   };
 
@@ -60,7 +64,7 @@ export function AddMealForm({ petId, onClose }: Props) {
         onChange={(e) => setNote(e.target.value)}
       />
       <Button type="submit" block>
-        식사 기록
+        {editing ? '수정 저장' : '식사 기록'}
       </Button>
     </form>
   );

@@ -11,6 +11,9 @@ dist-ssr
 vite.config.js
 vite.config.d.ts
 vite.config.js.map
+vite.character-proxy.js
+vite.character-proxy.d.ts
+vite.character-proxy.js.map
 
 # Capacitor sync output (web assets are copied here from dist/)
 android/app/src/main/assets/public/

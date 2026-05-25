@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Plus, Flame, Sparkles, BellRing } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
@@ -20,8 +20,11 @@ export function HomePage() {
   const activePetId = usePetStore((s) => s.activePetId);
   const activePet = pets.find((p) => p.id === activePetId) ?? null;
 
-  const todayItems = useCareStore((s) =>
-    activePet ? s.todayItemsForPet(activePet.id) : [],
+  const careItems = useCareStore((s) => s.items);
+  const todayItemsForPet = useCareStore((s) => s.todayItemsForPet);
+  const todayItems = useMemo(
+    () => (activePet ? todayItemsForPet(activePet.id) : []),
+    [careItems, activePet, todayItemsForPet],
   );
   const toggle = useCareStore((s) => s.toggle);
   const remove = useCareStore((s) => s.remove);
@@ -88,6 +91,7 @@ export function HomePage() {
         <div className="flex flex-col items-center text-center">
           <Character
             photoUrl={activePet.photoUrl}
+            characterUrl={activePet.characterUrl}
             species={activePet.species}
             template={activePet.characterTemplate}
             mood={mood}

@@ -28,6 +28,12 @@ interface RecordsState {
   addHospital: (input: Omit<HospitalRecord, 'id'>) => HospitalRecord;
   addReptileEnv: (input: Omit<ReptileEnvironment, 'id'>) => ReptileEnvironment;
 
+  updateWeight: (id: string, patch: RecordPatch<WeightRecord>) => void;
+  updateMeal: (id: string, patch: RecordPatch<MealRecord>) => void;
+  updateWalk: (id: string, patch: RecordPatch<WalkRecord>) => void;
+  updateMedication: (id: string, patch: RecordPatch<Medication>) => void;
+  updateSupplement: (id: string, patch: RecordPatch<Supplement>) => void;
+
   removeWeight: (id: string) => void;
   removeMeal: (id: string) => void;
   removeWalk: (id: string) => void;
@@ -36,8 +42,21 @@ interface RecordsState {
   removeHospital: (id: string) => void;
 }
 
+/** Fields editable on a record — id and petId stay fixed. */
+type RecordPatch<T extends { id: string; petId: string }> = Partial<
+  Omit<T, 'id' | 'petId'>
+>;
+
 function append<T extends { id: string }>(list: T[], item: T): T[] {
   return [...list, item];
+}
+
+function patchById<T extends { id: string }>(
+  list: T[],
+  id: string,
+  patch: NoInfer<Partial<T>>,
+): T[] {
+  return list.map((item) => (item.id === id ? { ...item, ...patch } : item));
 }
 
 export const useRecordsStore = create<RecordsState>()(
@@ -86,6 +105,21 @@ export const useRecordsStore = create<RecordsState>()(
         set((state) => ({ reptileEnvs: append(state.reptileEnvs, item) }));
         return item;
       },
+
+      updateWeight: (id, patch) =>
+        set((state) => ({ weights: patchById(state.weights, id, patch) })),
+      updateMeal: (id, patch) =>
+        set((state) => ({ meals: patchById(state.meals, id, patch) })),
+      updateWalk: (id, patch) =>
+        set((state) => ({ walks: patchById(state.walks, id, patch) })),
+      updateMedication: (id, patch) =>
+        set((state) => ({
+          medications: patchById(state.medications, id, patch),
+        })),
+      updateSupplement: (id, patch) =>
+        set((state) => ({
+          supplements: patchById(state.supplements, id, patch),
+        })),
 
       removeWeight: (id) =>
         set((state) => ({ weights: state.weights.filter((x) => x.id !== id) })),

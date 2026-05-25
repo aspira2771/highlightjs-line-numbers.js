@@ -110,6 +110,13 @@ export interface HospitalRecord {
   attachments?: string[];
 }
 
+/** A single GPS sample recorded along a walk. */
+export interface GeoPoint {
+  lat: number;
+  lng: number;
+  t: number; // epoch ms
+}
+
 export interface WalkRecord {
   id: string;
   petId: string;
@@ -118,6 +125,8 @@ export interface WalkRecord {
   hadBowelMovement?: boolean;
   weather?: string;
   note?: string;
+  path?: GeoPoint[]; // GPS route captured during live tracking
+  distanceMeters?: number; // total distance derived from path
 }
 
 export interface MealRecord {

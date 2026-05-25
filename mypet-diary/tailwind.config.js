@@ -4,31 +4,49 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Toss-style blue as the primary action color.
         primary: {
-          DEFAULT: '#FFB088',
-          50: '#FFF1E8',
-          100: '#FFE3D0',
-          200: '#FFD0B0',
-          300: '#FFB088',
-          400: '#FF9866',
-          500: '#FF7E45',
+          DEFAULT: '#3182F6',
+          50: '#EAF2FE',
+          100: '#C9DEFB',
+          200: '#90BFF9',
+          300: '#5A9CF8',
+          400: '#3182F6',
+          500: '#1B64DA',
         },
+        // Toss success green (used sparingly, e.g. completed/positive states).
         secondary: {
-          DEFAULT: '#A8D8B9',
-          50: '#EFF8F2',
-          100: '#D8EEDE',
-          200: '#A8D8B9',
-          300: '#7BC394',
+          DEFAULT: '#00C471',
+          50: '#E7F9F1',
+          100: '#C2EFD9',
+          200: '#7FDCAE',
+          300: '#00C471',
         },
+        // Reward/points accent.
         accent: {
-          DEFAULT: '#F5D547',
-          50: '#FEF8DC',
-          100: '#FCEFA8',
-          200: '#F5D547',
+          DEFAULT: '#F5C147',
+          50: '#FEF7E4',
+          100: '#FCEBB6',
+          200: '#F5C147',
         },
-        bg: '#FFF8F0',
-        ink: '#3D3D3D',
-        muted: '#8A8A8A',
+        // Toss neutral gray scale.
+        gray: {
+          50: '#F9FAFB',
+          100: '#F2F4F6',
+          200: '#E5E8EB',
+          300: '#D1D6DB',
+          400: '#B0B8C1',
+          500: '#8B95A1',
+          600: '#6B7684',
+          700: '#4E5968',
+          800: '#333D4B',
+          900: '#191F28',
+        },
+        bg: '#F2F4F6', // app background (Toss light gray)
+        surface: '#FFFFFF', // cards / sheets
+        ink: '#191F28', // primary text
+        muted: '#8B95A1', // secondary text
+        line: '#E5E8EB', // borders / dividers
       },
       fontFamily: {
         sans: [
@@ -42,11 +60,13 @@ export default {
       },
       borderRadius: {
         soft: '1rem',
+        card: '1.25rem',
         pill: '999px',
       },
       boxShadow: {
-        soft: '0 2px 8px rgba(61, 61, 61, 0.06)',
-        card: '0 4px 16px rgba(255, 176, 136, 0.15)',
+        soft: '0 1px 3px rgba(0, 0, 0, 0.06)',
+        card: '0 2px 8px rgba(0, 0, 0, 0.06)',
+        float: '0 8px 24px rgba(0, 0, 0, 0.12)',
       },
       keyframes: {
         bounceSoft: {
@@ -62,11 +82,16 @@ export default {
           '0%, 100%': { transform: 'rotate(-3deg)' },
           '50%': { transform: 'rotate(3deg)' },
         },
+        slideUp: {
+          '0%': { transform: 'translateY(16px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
       },
       animation: {
         bounceSoft: 'bounceSoft 1.6s ease-in-out infinite',
         pop: 'pop 0.35s ease-out',
         wiggle: 'wiggle 0.6s ease-in-out',
+        slideUp: 'slideUp 0.3s ease-out',
       },
     },
   },

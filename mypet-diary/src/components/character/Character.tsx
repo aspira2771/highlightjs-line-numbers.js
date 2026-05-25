@@ -4,6 +4,8 @@ import { cn } from '@/utils/cn';
 
 interface CharacterProps {
   photoUrl?: string;
+  /** AI-generated 2D character image; preferred over the raw photo when present. */
+  characterUrl?: string;
   species: PetSpecies;
   template?: CharacterTemplate;
   mood?: CharacterMood;
@@ -34,12 +36,14 @@ const SIZE_CLASS = {
 
 export function Character({
   photoUrl,
+  characterUrl,
   species,
   template = 'classic',
   mood = 'happy',
   size = 'md',
   animated = true,
 }: CharacterProps) {
+  const imageSrc = characterUrl || photoUrl;
   return (
     <div className="relative inline-flex items-center justify-center">
       <div
@@ -50,9 +54,9 @@ export function Character({
           animated && 'animate-bounceSoft',
         )}
       >
-        {photoUrl ? (
+        {imageSrc ? (
           <img
-            src={photoUrl}
+            src={imageSrc}
             alt="pet"
             className="h-full w-full rounded-full object-cover"
           />

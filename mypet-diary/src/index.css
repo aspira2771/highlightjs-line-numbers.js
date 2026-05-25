@@ -29,10 +29,15 @@
   }
 
   .card {
-    @apply rounded-soft bg-white p-4 shadow-soft;
+    @apply rounded-card bg-surface p-4 shadow-card;
   }
 
   .pill {
     @apply inline-flex items-center rounded-pill px-3 py-1 text-xs font-medium;
+  }
+
+  /* Toss-style section heading used above grouped content. */
+  .section-title {
+    @apply mb-2 text-sm font-bold text-gray-800;
   }
 }

@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { Character } from '@/components/character/Character';
 import { PetForm } from '@/features/pet/PetForm';
 import { usePetStore } from '@/stores/petStore';
+import { useAuthStore } from '@/stores/authStore';
 import { useNotification } from '@/hooks/useNotification';
 import {
   CARE_ICONS,
@@ -22,7 +23,15 @@ export function MyPetPage() {
   const updatePet = usePetStore((s) => s.updatePet);
   const removePet = usePetStore((s) => s.removePet);
   const setActivePet = usePetStore((s) => s.setActivePet);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const { permission, request } = useNotification();
+
+  const PROVIDER_LABEL: Record<string, string> = {
+    kakao: '카카오',
+    google: 'Google',
+    guest: '게스트',
+  };
 
   const [addOpen, setAddOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -63,6 +72,7 @@ export function MyPetPage() {
                 <div className="flex items-center gap-4">
                   <Character
                     photoUrl={pet.photoUrl}
+                    characterUrl={pet.characterUrl}
                     species={pet.species}
                     template={pet.characterTemplate}
                     size="sm"
@@ -132,6 +142,26 @@ export function MyPetPage() {
 
       <Card className="mt-6" title="설정">
         <div className="space-y-3 text-sm">
+          {user && (
+            <div className="flex items-center justify-between border-b border-line pb-3">
+              <div>
+                <p className="font-semibold">{user.name}님</p>
+                <p className="text-xs text-muted">
+                  {PROVIDER_LABEL[user.provider] ?? user.provider} 계정
+                  {user.email ? ` · ${user.email}` : ''}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  if (confirm('로그아웃 할까요?')) logout();
+                }}
+              >
+                로그아웃
+              </Button>
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <div>
               <p className="font-semibold">푸시 알림</p>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { MapPin, Plus, Route } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
 import { Modal } from '@/components/common/Modal';
@@ -8,14 +8,33 @@ import { PetSwitcher } from '@/features/pet/PetSwitcher';
 import { AddMealForm } from '@/features/meal/AddMealForm';
 import { AddWeightForm } from '@/features/weight/AddWeightForm';
 import { AddWalkForm } from '@/features/walk/AddWalkForm';
+import { WalkTracker } from '@/features/walk/WalkTracker';
 import { AddMedicationForm } from '@/features/medication/AddMedicationForm';
 import { AddSupplementForm } from '@/features/supplement/AddSupplementForm';
 import { WeightChart, weightAdvisory } from '@/components/charts/WeightChart';
+import { WalkMap } from '@/components/walk/WalkMap';
 import { usePetStore } from '@/stores/petStore';
 import { useRecordsStore } from '@/stores/recordsStore';
 import { formatKoreanDate, formatKoreanTime } from '@/utils/date';
+import { formatDistance } from '@/utils/geo';
+import type {
+  GeoPoint,
+  MealRecord,
+  Medication,
+  Supplement,
+  WalkRecord,
+  WeightRecord,
+} from '@/types';
 
 type Tab = 'weight' | 'meal' | 'walk' | 'medication' | 'supplement';
+
+/** Which record (if any) the modal is currently editing, tagged by its tab. */
+type EditTarget =
+  | { tab: 'weight'; record: WeightRecord }
+  | { tab: 'meal'; record: MealRecord }
+  | { tab: 'walk'; record: WalkRecord }
+  | { tab: 'medication'; record: Medication }
+  | { tab: 'supplement'; record: Supplement };
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: 'weight', label: '체중' },
@@ -32,6 +51,18 @@ export function RecordsPage() {
   const records = useRecordsStore();
   const [tab, setTab] = useState<Tab>('weight');
   const [open, setOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
+  const [tracking, setTracking] = useState(false);
+  const [viewingPath, setViewingPath] = useState<GeoPoint[] | null>(null);
+
+  const openEdit = (target: EditTarget) => {
+    setEditTarget(target);
+    setOpen(true);
+  };
+  const closeModal = () => {
+    setOpen(false);
+    setEditTarget(null);
+  };
 
   if (!activePet) {
     return (
@@ -97,12 +128,20 @@ export function RecordsPage() {
                       {formatKoreanDate(w.recordedAt)}
                     </p>
                   </div>
-                  <button
-                    className="text-xs text-red-500"
-                    onClick={() => records.removeWeight(w.id)}
-                  >
-                    삭제
-                  </button>
+                  <div className="flex shrink-0 gap-3 text-xs">
+                    <button
+                      className="text-muted"
+                      onClick={() => openEdit({ tab: 'weight', record: w })}
+                    >
+                      수정
+                    </button>
+                    <button
+                      className="text-red-500"
+                      onClick={() => records.removeWeight(w.id)}
+                    >
+                      삭제
+                    </button>
+                  </div>
                 </li>
               ))}
           </ul>
@@ -137,12 +176,20 @@ export function RecordsPage() {
                     </p>
                     {m.note && <p className="mt-1 text-sm">{m.note}</p>}
                   </div>
-                  <button
-                    className="text-xs text-red-500"
-                    onClick={() => records.removeMeal(m.id)}
-                  >
-                    삭제
-                  </button>
+                  <div className="flex shrink-0 gap-3 text-xs">
+                    <button
+                      className="text-muted"
+                      onClick={() => openEdit({ tab: 'meal', record: m })}
+                    >
+                      수정
+                    </button>
+                    <button
+                      className="text-red-500"
+                      onClick={() => records.removeMeal(m.id)}
+                    >
+                      삭제
+                    </button>
+                  </div>
                 </div>
               </li>
             ))}
@@ -150,40 +197,71 @@ export function RecordsPage() {
       )}
 
       {tab === 'walk' && (
-        <ul className="space-y-2">
-          {walks.length === 0 && (
-            <EmptyState
-              emoji="🐾"
-              title="산책 기록이 없어요"
-              description="첫 산책 기록을 남겨보세요."
-            />
-          )}
-          {walks
-            .slice()
-            .reverse()
-            .map((w) => (
-              <li key={w.id} className="card">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-semibold">{w.durationMinutes}분</p>
-                    <p className="text-xs text-muted">
-                      {formatKoreanDate(w.startedAt)} ·{' '}
-                      {formatKoreanTime(w.startedAt)}
-                      {w.weather && ` · ${w.weather}`}
-                      {w.hadBowelMovement && ' · 배변 있음'}
-                    </p>
-                    {w.note && <p className="mt-1 text-sm">{w.note}</p>}
+        <>
+          <Button
+            block
+            className="mb-4"
+            leftIcon={<MapPin size={18} />}
+            onClick={() => setTracking(true)}
+          >
+            GPS 산책 시작
+          </Button>
+          <ul className="space-y-2">
+            {walks.length === 0 && (
+              <EmptyState
+                emoji="🐾"
+                title="산책 기록이 없어요"
+                description="위 버튼으로 산책을 시작하거나 + 로 직접 기록하세요."
+              />
+            )}
+            {walks
+              .slice()
+              .reverse()
+              .map((w) => (
+                <li key={w.id} className="card">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="font-semibold">
+                        {w.durationMinutes}분
+                        {typeof w.distanceMeters === 'number' &&
+                          ` · ${formatDistance(w.distanceMeters)}`}
+                      </p>
+                      <p className="text-xs text-muted">
+                        {formatKoreanDate(w.startedAt)} ·{' '}
+                        {formatKoreanTime(w.startedAt)}
+                        {w.weather && ` · ${w.weather}`}
+                        {w.hadBowelMovement && ' · 배변 있음'}
+                      </p>
+                      {w.note && <p className="mt-1 text-sm">{w.note}</p>}
+                      {w.path && w.path.length > 1 && (
+                        <button
+                          className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary-500"
+                          onClick={() => setViewingPath(w.path ?? null)}
+                        >
+                          <Route size={14} />
+                          지도 보기
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex shrink-0 gap-3 text-xs">
+                      <button
+                        className="text-muted"
+                        onClick={() => openEdit({ tab: 'walk', record: w })}
+                      >
+                        수정
+                      </button>
+                      <button
+                        className="text-red-500"
+                        onClick={() => records.removeWalk(w.id)}
+                      >
+                        삭제
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    className="text-xs text-red-500"
-                    onClick={() => records.removeWalk(w.id)}
-                  >
-                    삭제
-                  </button>
-                </div>
-              </li>
-            ))}
-        </ul>
+                </li>
+              ))}
+          </ul>
+        </>
       )}
 
       {tab === 'medication' && (
@@ -210,12 +288,20 @@ export function RecordsPage() {
                     <p className="mt-1 text-sm text-muted">{m.purpose}</p>
                   )}
                 </div>
-                <button
-                  className="text-xs text-red-500"
-                  onClick={() => records.removeMedication(m.id)}
-                >
-                  삭제
-                </button>
+                <div className="flex shrink-0 gap-3 text-xs">
+                  <button
+                    className="text-muted"
+                    onClick={() => openEdit({ tab: 'medication', record: m })}
+                  >
+                    수정
+                  </button>
+                  <button
+                    className="text-red-500"
+                    onClick={() => records.removeMedication(m.id)}
+                  >
+                    삭제
+                  </button>
+                </div>
               </div>
             </li>
           ))}
@@ -248,12 +334,20 @@ export function RecordsPage() {
                       </p>
                     )}
                 </div>
-                <button
-                  className="text-xs text-red-500"
-                  onClick={() => records.removeSupplement(s.id)}
-                >
-                  삭제
-                </button>
+                <div className="flex shrink-0 gap-3 text-xs">
+                  <button
+                    className="text-muted"
+                    onClick={() => openEdit({ tab: 'supplement', record: s })}
+                  >
+                    수정
+                  </button>
+                  <button
+                    className="text-red-500"
+                    onClick={() => records.removeSupplement(s.id)}
+                  >
+                    삭제
+                  </button>
+                </div>
               </div>
             </li>
           ))}
@@ -261,7 +355,10 @@ export function RecordsPage() {
       )}
 
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setEditTarget(null);
+          setOpen(true);
+        }}
         className="fixed bottom-24 right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-card transition hover:scale-105"
         aria-label="기록 추가"
       >
@@ -270,24 +367,71 @@ export function RecordsPage() {
 
       <Modal
         open={open}
-        onClose={() => setOpen(false)}
-        title={`${TABS.find((t) => t.id === tab)?.label} 기록 추가`}
+        onClose={closeModal}
+        title={`${TABS.find((t) => t.id === tab)?.label} 기록 ${
+          editTarget ? '수정' : '추가'
+        }`}
       >
         {tab === 'weight' && (
-          <AddWeightForm petId={petId} onClose={() => setOpen(false)} />
+          <AddWeightForm
+            key={editTarget?.record.id ?? 'new'}
+            petId={petId}
+            editing={editTarget?.tab === 'weight' ? editTarget.record : null}
+            onClose={closeModal}
+          />
         )}
         {tab === 'meal' && (
-          <AddMealForm petId={petId} onClose={() => setOpen(false)} />
+          <AddMealForm
+            key={editTarget?.record.id ?? 'new'}
+            petId={petId}
+            editing={editTarget?.tab === 'meal' ? editTarget.record : null}
+            onClose={closeModal}
+          />
         )}
         {tab === 'walk' && (
-          <AddWalkForm petId={petId} onClose={() => setOpen(false)} />
+          <AddWalkForm
+            key={editTarget?.record.id ?? 'new'}
+            petId={petId}
+            editing={editTarget?.tab === 'walk' ? editTarget.record : null}
+            onClose={closeModal}
+          />
         )}
         {tab === 'medication' && (
-          <AddMedicationForm petId={petId} onClose={() => setOpen(false)} />
+          <AddMedicationForm
+            key={editTarget?.record.id ?? 'new'}
+            petId={petId}
+            editing={
+              editTarget?.tab === 'medication' ? editTarget.record : null
+            }
+            onClose={closeModal}
+          />
         )}
         {tab === 'supplement' && (
-          <AddSupplementForm petId={petId} onClose={() => setOpen(false)} />
+          <AddSupplementForm
+            key={editTarget?.record.id ?? 'new'}
+            petId={petId}
+            editing={
+              editTarget?.tab === 'supplement' ? editTarget.record : null
+            }
+            onClose={closeModal}
+          />
         )}
+      </Modal>
+
+      <Modal
+        open={tracking}
+        onClose={() => setTracking(false)}
+        title="GPS 산책"
+      >
+        <WalkTracker petId={petId} onClose={() => setTracking(false)} />
+      </Modal>
+
+      <Modal
+        open={viewingPath !== null}
+        onClose={() => setViewingPath(null)}
+        title="산책 경로"
+      >
+        {viewingPath && <WalkMap path={viewingPath} />}
       </Modal>
     </div>
   );
