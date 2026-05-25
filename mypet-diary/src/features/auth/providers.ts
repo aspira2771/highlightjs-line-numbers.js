@@ -21,3 +21,19 @@ export async function loginWithProvider(provider: SocialProvider): Promise<void>
   // up on return by initAuth()'s onAuthStateChange listener.
   if (error) throw new Error(error.message);
 }
+
+/**
+ * Passwordless email login (magic link). Works with Supabase's built-in email
+ * provider — no OAuth app needed. The user clicks the link in their inbox and
+ * is returned signed in.
+ */
+export async function loginWithEmail(email: string): Promise<void> {
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error('백엔드(Supabase) 연결 후 사용할 수 있어요.');
+  }
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin },
+  });
+  if (error) throw new Error(error.message);
+}

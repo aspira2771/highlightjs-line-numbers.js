@@ -1,7 +1,13 @@
--- MyPet Diary — Supabase schema
--- Run this in the Supabase SQL editor (or `supabase db push`).
--- Mirrors the client data model (src/types/index.ts). Every row is owned by a
--- user (auth.users.id); Row-Level Security ensures users only see their own data.
+-- MyPet Diary — Supabase schema (v2, sync-ready)
+-- Run this in the Supabase SQL editor. Safe to re-run (drops & recreates the
+-- data tables). Profiles + the new-user trigger are preserved.
+--
+-- Notes for cloud sync:
+--  * Primary keys are TEXT (the app generates string ids like "pet_ab12").
+--  * date/time columns are TEXT (exact ISO round-trip with the client).
+--  * pet_id has NO foreign key on purpose — the app keeps records locally even
+--    after a pet is removed, so an FK would break sync upserts. RLS by user_id
+--    still fully isolates each user's data.
 
 -- ─────────────────────────────────────────────────────────────
 -- Profiles (1:1 with auth.users)
@@ -13,7 +19,6 @@ create table if not exists public.profiles (
   created_at timestamptz not null default now()
 );
 
--- Auto-create a profile row when a user signs up.
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
@@ -34,16 +39,30 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 -- ─────────────────────────────────────────────────────────────
--- Pets
+-- Data tables (drop & recreate)
 -- ─────────────────────────────────────────────────────────────
-create table if not exists public.pets (
-  id uuid primary key default gen_random_uuid(),
+drop table if exists public.pets cascade;
+drop table if exists public.care_items cascade;
+drop table if exists public.weights cascade;
+drop table if exists public.meals cascade;
+drop table if exists public.walks cascade;
+drop table if exists public.medications cascade;
+drop table if exists public.supplements cascade;
+drop table if exists public.hospitals cascade;
+drop table if exists public.reptile_envs cascade;
+drop table if exists public.symptoms cascade;
+drop table if exists public.treats cascade;
+drop table if exists public.photos cascade;
+drop table if exists public.point_transactions cascade;
+
+create table public.pets (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
   name text not null,
   species text not null,
   breed text,
-  birth_date date,
-  adoption_date date,
+  birth_date text,
+  adoption_date text,
   gender text,
   weight numeric,
   photo_url text,
@@ -51,53 +70,47 @@ create table if not exists public.pets (
   character_template text,
   notes text,
   care_template text[] not null default '{}',
-  created_at timestamptz not null default now()
+  created_at text
 );
 
--- ─────────────────────────────────────────────────────────────
--- Care checklist items
--- ─────────────────────────────────────────────────────────────
-create table if not exists public.care_items (
-  id uuid primary key default gen_random_uuid(),
+create table public.care_items (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  pet_id uuid not null references public.pets (id) on delete cascade,
+  pet_id text,
   type text not null,
   title text not null,
-  scheduled_at timestamptz not null,
+  scheduled_at text not null,
   completed boolean not null default false,
-  completed_at timestamptz,
+  completed_at text,
   recurrence jsonb,
   metadata jsonb
 );
 
--- ─────────────────────────────────────────────────────────────
--- Records
--- ─────────────────────────────────────────────────────────────
-create table if not exists public.weights (
-  id uuid primary key default gen_random_uuid(),
+create table public.weights (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  pet_id uuid not null references public.pets (id) on delete cascade,
+  pet_id text,
   weight numeric not null,
-  recorded_at timestamptz not null,
+  recorded_at text not null,
   note text
 );
 
-create table if not exists public.meals (
-  id uuid primary key default gen_random_uuid(),
+create table public.meals (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  pet_id uuid not null references public.pets (id) on delete cascade,
-  recorded_at timestamptz not null,
+  pet_id text,
+  recorded_at text not null,
   food_name text,
   amount text,
   note text
 );
 
-create table if not exists public.walks (
-  id uuid primary key default gen_random_uuid(),
+create table public.walks (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  pet_id uuid not null references public.pets (id) on delete cascade,
-  started_at timestamptz not null,
-  duration_minutes integer not null default 0,
+  pet_id text,
+  started_at text not null,
+  duration_minutes numeric not null default 0,
   had_bowel_movement boolean,
   weather text,
   note text,
@@ -105,71 +118,81 @@ create table if not exists public.walks (
   distance_meters numeric
 );
 
-create table if not exists public.medications (
-  id uuid primary key default gen_random_uuid(),
+create table public.medications (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  pet_id uuid not null references public.pets (id) on delete cascade,
+  pet_id text,
   name text not null,
   dosage text,
-  start_date timestamptz not null,
-  end_date timestamptz,
+  start_date text not null,
+  end_date text,
   recurrence jsonb not null,
   purpose text
 );
 
-create table if not exists public.supplements (
-  id uuid primary key default gen_random_uuid(),
+create table public.supplements (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  pet_id uuid not null references public.pets (id) on delete cascade,
+  pet_id text,
   name text not null,
   recurrence jsonb not null,
-  remaining_count integer,
-  alert_threshold integer
+  remaining_count numeric,
+  alert_threshold numeric
 );
 
-create table if not exists public.hospitals (
-  id uuid primary key default gen_random_uuid(),
+create table public.hospitals (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  pet_id uuid not null references public.pets (id) on delete cascade,
-  visit_date timestamptz not null,
+  pet_id text,
+  visit_date text not null,
   hospital_name text not null,
   hospital_contact text,
   purpose text not null,
   diagnosis text,
   treatment text,
   cost numeric,
-  next_visit_date timestamptz,
+  next_visit_date text,
   attachments text[]
 );
 
-create table if not exists public.reptile_envs (
-  id uuid primary key default gen_random_uuid(),
+create table public.reptile_envs (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  pet_id uuid not null references public.pets (id) on delete cascade,
-  recorded_at timestamptz not null,
+  pet_id text,
+  recorded_at text not null,
   humidity numeric,
   temperature numeric,
   shedding_status text,
   note text
 );
 
--- ─────────────────────────────────────────────────────────────
--- Points & streaks
--- ─────────────────────────────────────────────────────────────
-create table if not exists public.point_transactions (
-  id uuid primary key default gen_random_uuid(),
+create table public.symptoms (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  amount integer not null,
-  reason text not null,
-  created_at timestamptz not null default now()
+  pet_id text,
+  recorded_at text not null,
+  kinds text[] not null default '{}',
+  severity text,
+  note text
 );
 
-create table if not exists public.streaks (
-  pet_id uuid primary key references public.pets (id) on delete cascade,
+create table public.treats (
+  id text primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  current_days integer not null default 0,
-  best_days integer not null default 0,
-  last_check_date date
+  pet_id text,
+  recorded_at text not null,
+  name text,
+  amount text,
+  note text
+);
+
+create table public.photos (
+  id text primary key,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  pet_id text,
+  photo_url text not null,
+  taken_at text not null,
+  caption text
 );
 
 -- ─────────────────────────────────────────────────────────────
@@ -181,7 +204,7 @@ begin
   foreach t in array array[
     'profiles','pets','care_items','weights','meals','walks',
     'medications','supplements','hospitals','reptile_envs',
-    'point_transactions','streaks'
+    'symptoms','treats','photos'
   ] loop
     execute format('alter table public.%I enable row level security;', t);
     execute format('drop policy if exists "own_rows" on public.%I;', t);
@@ -195,8 +218,7 @@ begin
   end loop;
 end $$;
 
--- Helpful indexes for per-pet queries.
 create index if not exists idx_care_items_pet on public.care_items (pet_id);
 create index if not exists idx_weights_pet on public.weights (pet_id);
-create index if not exists idx_meals_pet on public.meals (pet_id);
 create index if not exists idx_walks_pet on public.walks (pet_id);
+create index if not exists idx_photos_pet on public.photos (pet_id);

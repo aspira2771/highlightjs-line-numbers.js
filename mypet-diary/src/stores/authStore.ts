@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { startSync, stopSync } from '@/lib/sync';
 
 export type AuthProvider = 'kakao' | 'google' | 'guest';
 
@@ -39,17 +40,20 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       initialized: false,
-      loginAsGuest: (name) =>
+      loginAsGuest: (name) => {
+        stopSync(); // guests stay local-only
         set({
           user: {
             id: 'guest',
             name: name?.trim() || '게스트',
             provider: 'guest',
           },
-        }),
+        });
+      },
       setUser: (user) => set({ user }),
       setInitialized: (v) => set({ initialized: v }),
       logout: async () => {
+        stopSync();
         if (isSupabaseConfigured && supabase) {
           await supabase.auth.signOut();
         }
@@ -68,12 +72,17 @@ export async function initAuth(): Promise<void> {
   const { setUser, setInitialized } = useAuthStore.getState();
   if (isSupabaseConfigured && supabase) {
     const { data } = await supabase.auth.getSession();
-    if (data.session?.user) setUser(fromSupabase(data.session.user));
+    if (data.session?.user) {
+      setUser(fromSupabase(data.session.user));
+      startSync(data.session.user.id);
+    }
 
     supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setUser(fromSupabase(session.user));
+        startSync(session.user.id);
       } else if (event === 'SIGNED_OUT') {
+        stopSync();
         const current = useAuthStore.getState().user;
         // Don't wipe a local guest session on Supabase's null events.
         if (current && current.provider !== 'guest') setUser(null);

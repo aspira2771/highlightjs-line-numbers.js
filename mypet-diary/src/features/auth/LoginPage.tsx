@@ -1,7 +1,11 @@
 import { useState } from 'react';
-import { PawPrint } from 'lucide-react';
+import { Mail, PawPrint } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import { loginWithProvider, type SocialProvider } from './providers';
+import {
+  loginWithEmail,
+  loginWithProvider,
+  type SocialProvider,
+} from './providers';
 
 /** Kakao speech-bubble mark. */
 function KakaoIcon() {
@@ -28,6 +32,10 @@ export function LoginPage() {
   const loginAsGuest = useAuthStore((s) => s.loginAsGuest);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<SocialProvider | null>(null);
+  const [showEmail, setShowEmail] = useState(false);
+  const [email, setEmail] = useState('');
+  const [emailBusy, setEmailBusy] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const social = async (provider: SocialProvider) => {
     setError(null);
@@ -37,6 +45,20 @@ export function LoginPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : '로그인에 실패했어요.');
       setBusy(null);
+    }
+  };
+
+  const submitEmail = async () => {
+    if (!email.trim()) return;
+    setError(null);
+    setEmailBusy(true);
+    try {
+      await loginWithEmail(email.trim());
+      setEmailSent(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '이메일 전송에 실패했어요.');
+    } finally {
+      setEmailBusy(false);
     }
   };
 
@@ -80,6 +102,41 @@ export function LoginPage() {
           <GoogleIcon />
           {busy === 'google' ? '연결 중…' : 'Google로 시작하기'}
         </button>
+
+        {!showEmail ? (
+          <button
+            onClick={() => setShowEmail(true)}
+            disabled={busy !== null}
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-soft border border-line bg-surface text-[15px] font-bold text-gray-800 transition active:scale-[0.99] disabled:opacity-60"
+          >
+            <Mail size={18} />
+            이메일로 시작하기
+          </button>
+        ) : emailSent ? (
+          <p className="rounded-soft bg-secondary-50 p-3 text-center text-sm text-secondary-300">
+            {email} 로 로그인 링크를 보냈어요. 메일함의 링크를 눌러주세요.
+          </p>
+        ) : (
+          <div className="flex gap-2">
+            <input
+              type="email"
+              inputMode="email"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submitEmail()}
+              placeholder="이메일 주소"
+              className="h-14 flex-1 rounded-soft border border-line bg-surface px-4 text-[15px] outline-none focus:border-primary"
+            />
+            <button
+              onClick={submitEmail}
+              disabled={emailBusy}
+              className="h-14 shrink-0 rounded-soft bg-primary px-5 text-[15px] font-bold text-white transition active:scale-[0.99] disabled:opacity-60"
+            >
+              {emailBusy ? '전송…' : '링크 받기'}
+            </button>
+          </div>
+        )}
 
         <button
           onClick={() => loginAsGuest()}
