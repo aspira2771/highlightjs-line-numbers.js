@@ -20,7 +20,8 @@ import { AddHospitalForm } from '@/features/hospital/AddHospitalForm';
 import { usePetStore } from '@/stores/petStore';
 import { useCareStore } from '@/stores/careStore';
 import { useRecordsStore } from '@/stores/recordsStore';
-import { CARE_ICONS, CARE_LABELS } from '@/utils/careLabels';
+import { CARE_ICONS, CARE_LABELS, CARE_TINT } from '@/utils/careLabels';
+import { ListRow } from '@/components/common/ListRow';
 import { cn } from '@/utils/cn';
 
 function buildMonthGrid(anchor: Date): Date[] {
@@ -162,40 +163,33 @@ export function CalendarPage() {
             description="여유로운 하루를 보내세요."
           />
         ) : (
-          <ul className="space-y-1">
+          <div className="divide-y divide-line">
             {careOnDay.map((item) => (
-              <li key={item.id} className="flex items-center gap-3 py-1">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-lg">
-                  {CARE_ICONS[item.type]}
-                </span>
-                <div>
-                  <p className="text-[15px] font-semibold text-ink">
-                    {item.title || CARE_LABELS[item.type]}
-                  </p>
-                  <p className="text-[13px] text-muted">
-                    {format(parseISO(item.scheduledAt), 'HH:mm')}
-                    {item.completed && ' · 완료'}
-                  </p>
-                </div>
-              </li>
+              <ListRow
+                key={item.id}
+                thumb={CARE_ICONS[item.type]}
+                thumbClass={CARE_TINT[item.type]}
+                title={item.title || CARE_LABELS[item.type]}
+                description={`${format(parseISO(item.scheduledAt), 'HH:mm')}${item.completed ? ' · 완료' : ''}`}
+                trailing={
+                  item.completed ? (
+                    <span className="shrink-0 rounded-full bg-primary-50 px-2.5 py-1 text-[12px] font-bold text-primary">
+                      완료
+                    </span>
+                  ) : undefined
+                }
+              />
             ))}
             {hospitalOnDay.map((h) => (
-              <li key={h.id} className="flex items-center gap-3 py-1">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-lg">
-                  🏥
-                </span>
-                <div>
-                  <p className="text-[15px] font-semibold text-ink">
-                    {h.hospitalName}
-                  </p>
-                  <p className="text-[13px] text-muted">
-                    {h.purpose}
-                    {h.hospitalContact && ` · ${h.hospitalContact}`}
-                  </p>
-                </div>
-              </li>
+              <ListRow
+                key={h.id}
+                thumb="🏥"
+                thumbClass="bg-[#FFE6E9]"
+                title={h.hospitalName}
+                description={`${h.purpose}${h.hospitalContact ? ` · ${h.hospitalContact}` : ''}`}
+              />
             ))}
-          </ul>
+          </div>
         )}
       </Card>
 

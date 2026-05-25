@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { isSameDay, parseISO } from 'date-fns';
 import { Plus, BellRing } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
+import { StatRow } from '@/components/common/ListRow';
 import { Modal } from '@/components/common/Modal';
 import { Character } from '@/components/character/Character';
 import { CareList } from '@/components/care/CareList';
@@ -20,16 +22,28 @@ export function HomePage() {
   const activePetId = usePetStore((s) => s.activePetId);
   const activePet = pets.find((p) => p.id === activePetId) ?? null;
 
-  const todayItems = useCareStore((s) =>
-    activePet ? s.todayItemsForPet(activePet.id) : [],
-  );
+  // Subscribe to the raw items array (stable ref) and derive today's items
+  // with useMemo — returning a fresh array from the selector itself would
+  // make Zustand re-render every tick (React error #185 infinite loop).
+  const items = useCareStore((s) => s.items);
+  const todayItems = useMemo(() => {
+    if (!activePet) return [];
+    const now = new Date();
+    return items.filter(
+      (i) => i.petId === activePet.id && isSameDay(parseISO(i.scheduledAt), now),
+    );
+  }, [items, activePet]);
   const toggle = useCareStore((s) => s.toggle);
   const remove = useCareStore((s) => s.remove);
   const addItem = useCareStore((s) => s.addItem);
 
   const award = usePointsStore((s) => s.award);
   const markStreak = usePointsStore((s) => s.markStreak);
-  const totalPoints = usePointsStore((s) => s.total());
+  const transactions = usePointsStore((s) => s.transactions);
+  const totalPoints = useMemo(
+    () => transactions.reduce((sum, tx) => sum + tx.amount, 0),
+    [transactions],
+  );
   const streak = usePointsStore((s) =>
     activePet ? s.streaks[activePet.id] : undefined,
   );
@@ -120,29 +134,14 @@ export function HomePage() {
         </div>
       </div>
 
-      <div className="my-3 grid grid-cols-2 gap-3">
-        <div className="card flex items-center gap-3 p-4">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FFF4E0] text-xl">
-            🔥
-          </span>
-          <div>
-            <p className="text-[13px] font-medium text-muted">연속 케어</p>
-            <p className="text-[20px] font-bold tracking-tight text-ink">
-              {streak?.currentDays ?? 0}일
-            </p>
-          </div>
-        </div>
-        <div className="card flex items-center gap-3 p-4">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-50 text-xl">
-            ⭐
-          </span>
-          <div>
-            <p className="text-[13px] font-medium text-muted">포인트</p>
-            <p className="text-[20px] font-bold tracking-tight text-ink">
-              {totalPoints}P
-            </p>
-          </div>
-        </div>
+      <div className="my-3">
+        <StatRow
+          stats={[
+            { value: `${streak?.currentDays ?? 0}일`, label: '연속 케어' },
+            { value: `${streak?.bestDays ?? 0}일`, label: '최고 기록' },
+            { value: `${totalPoints}P`, label: '포인트' },
+          ]}
+        />
       </div>
 
       {permission !== 'granted' && permission !== 'unsupported' && (

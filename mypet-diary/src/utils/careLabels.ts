@@ -73,3 +73,22 @@ export const CARE_TEMPLATE: Record<PetSpecies, CareItemType[]> = {
 export function recommendedCare(species: PetSpecies): CareItemType[] {
   return CARE_TEMPLATE[species];
 }
+
+/** Soft tinted background for a care type's thumbnail tile. */
+export const CARE_TINT: Record<CareItemType, string> = {
+  meal: 'bg-[#FFF1E0]',
+  medication: 'bg-[#FFE6E9]',
+  supplement: 'bg-[#E9F0FF]',
+  treat: 'bg-[#FCEFD6]',
+  walk: 'bg-[#E7F6EC]',
+  weight: 'bg-[#EAF0FF]',
+  vaccine: 'bg-[#FFE6E9]',
+  hospital: 'bg-[#FFE6E9]',
+  humidity: 'bg-[#E5F6FB]',
+  temperature: 'bg-[#FFEEE6]',
+  shedding: 'bg-[#EFEAFE]',
+  uvb_lamp: 'bg-[#FFF6DC]',
+  cage_cleaning: 'bg-[#EAF0FF]',
+  bath: 'bg-[#E5F6FB]',
+  grooming: 'bg-[#FCE9F3]',
+};

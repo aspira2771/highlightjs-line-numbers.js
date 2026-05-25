@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Bell, Crown, Sparkles } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
 import { Modal } from '@/components/common/Modal';
 import { PageHeader } from '@/components/common/PageHeader';
 import { Character } from '@/components/character/Character';
+import { MenuRow } from '@/components/common/ListRow';
 import { PetForm } from '@/features/pet/PetForm';
 import { usePetStore } from '@/stores/petStore';
 import { useNotification } from '@/hooks/useNotification';
@@ -131,25 +132,30 @@ export function MyPetPage() {
         })}
       </ul>
 
-      <Card className="mt-3" title="설정">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[15px] font-semibold text-ink">푸시 알림</p>
-            <p className="mt-0.5 text-[13px] text-muted">
-              {permission === 'granted'
-                ? '켜져 있어요'
-                : permission === 'denied'
-                ? '브라우저 설정에서 허용해주세요'
-                : permission === 'unsupported'
-                ? '이 브라우저는 알림을 지원하지 않아요'
-                : '아직 허용 전이에요'}
-            </p>
-          </div>
-          {permission !== 'granted' && permission !== 'unsupported' && (
-            <Button size="sm" variant="secondary" onClick={request}>
-              허용
-            </Button>
-          )}
+      <Card className="mt-3 py-2" title="설정">
+        <div className="divide-y divide-line">
+          <MenuRow
+            icon={<Bell size={18} />}
+            label="푸시 알림"
+            trailing={
+              <span className="text-[14px] font-semibold text-muted">
+                {permission === 'granted'
+                  ? '켜짐'
+                  : permission === 'unsupported'
+                  ? '미지원'
+                  : permission === 'denied'
+                  ? '차단됨'
+                  : '꺼짐'}
+              </span>
+            }
+            onClick={
+              permission !== 'granted' && permission !== 'unsupported'
+                ? request
+                : undefined
+            }
+          />
+          <MenuRow icon={<Crown size={18} />} label="프리미엄 케어" />
+          <MenuRow icon={<Sparkles size={18} />} label="포인트 상점" />
         </div>
       </Card>
 
