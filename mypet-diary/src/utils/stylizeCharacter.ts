@@ -1,6 +1,6 @@
 /**
- * Turn a pet photo into an iconic 3D-character version via OpenAI gpt-image-1
- * image edits. Returns a transparent PNG data URL.
+ * Turn a pet photo into a cute 2D flat-illustration character via OpenAI
+ * gpt-image-1 image edits. Returns a transparent PNG data URL.
  *
  * SECURITY: this calls the OpenAI API directly from the client using a key in
  * import.meta.env.VITE_OPENAI_API_KEY. That key is embedded in the bundle and
@@ -11,12 +11,12 @@
 const ENDPOINT = 'https://api.openai.com/v1/images/edits';
 
 const PROMPT =
-  'Transform this pet into an adorable soft plush mascot character, in the style ' +
-  'of cute felted-wool designer toys / Korean city mascots (like Seoul Friends): ' +
-  'fuzzy matte needle-felted wool texture (NOT glossy), very round chubby body, ' +
-  'short stubby limbs, oversized head, big simple round glossy eyes, tiny cute ' +
-  'smile, pastel color palette, soft even studio lighting, squishy kawaii blind-box ' +
-  'toy feel. Keep the animal’s species, breed, fur color and markings recognizable. ' +
+  'Transform this pet into a cute 2D flat-illustration mascot character, in a ' +
+  'modern flat vector / sticker design style: simple clean flat shapes, solid ' +
+  'flat colors with little or no gradient, soft rounded forms, big simple ' +
+  'eyes, tiny minimal smile, friendly kawaii Korean-mascot vibe. Strictly 2D ' +
+  'flat artwork — no 3D rendering, no realistic texture, no drop shadows. ' +
+  'Keep the animal’s species, breed, color and markings recognizable. ' +
   'Single character, centered, facing forward, full body, transparent background.';
 
 export function hasOpenAIKey(): boolean {
@@ -32,7 +32,7 @@ function dataUrlToBlob(dataUrl: string): Blob {
   return new Blob([bytes], { type: mime });
 }
 
-export async function stylize3dCharacter(photoDataUrl: string): Promise<string> {
+export async function stylizeCharacter(photoDataUrl: string): Promise<string> {
   const key = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
   if (!key) {
     throw new Error('OpenAI API 키가 설정되지 않았어요 (VITE_OPENAI_API_KEY).');

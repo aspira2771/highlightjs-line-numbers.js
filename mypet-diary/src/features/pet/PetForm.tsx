@@ -8,7 +8,7 @@ import {
 } from '@/components/character/Character';
 import { SPECIES_LABELS } from '@/utils/careLabels';
 import { cutoutImage } from '@/utils/background';
-import { stylize3dCharacter, hasOpenAIKey } from '@/utils/stylize3d';
+import { stylizeCharacter, hasOpenAIKey } from '@/utils/stylizeCharacter';
 import type {
   CharacterTemplate,
   Pet,
@@ -93,13 +93,13 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
     }
   };
 
-  const make3dCharacter = async () => {
+  const makeCharacter = async () => {
     if (!photoUrl || stylizing) return;
     setStylizeError(null);
     setStylizing(true);
     try {
       // Use the original photo as the source — it has the most detail.
-      const character = await stylize3dCharacter(photoUrl);
+      const character = await stylizeCharacter(photoUrl);
       setCharacterUrl(character);
     } catch (e) {
       setStylizeError((e as Error).message);
@@ -144,7 +144,7 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
             <div className="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-ink/45 text-white">
               <Loader2 size={22} className="animate-spin" />
               <span className="mt-1 text-[10px] font-semibold">
-                {stylizing ? '3D 변환 중' : '캐릭터 변환 중'}
+                {stylizing ? '2D 변환 중' : '캐릭터 변환 중'}
               </span>
             </div>
           )}
@@ -168,11 +168,11 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
           {photoUrl && (
             <button
               type="button"
-              onClick={make3dCharacter}
+              onClick={makeCharacter}
               disabled={stylizing || processing}
               className="flex items-center gap-1 rounded-soft bg-primary px-4 py-2 text-[12px] font-bold text-white transition active:scale-95 disabled:opacity-50"
             >
-              <Sparkles size={13} /> 3D 캐릭터로 만들기
+              <Sparkles size={13} /> 2D 캐릭터로 만들기
             </button>
           )}
         </div>
@@ -184,7 +184,7 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
         )}
         {stylizing && (
           <p className="text-[11px] text-muted">
-            AI가 3D 캐릭터로 그리는 중이에요… (몇 초 걸려요)
+            AI가 2D 캐릭터로 그리는 중이에요… (몇 초 걸려요)
           </p>
         )}
         {cutoutFailed && !processing && !stylizing && (
@@ -199,8 +199,8 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
         {stylizeError && !stylizing && (
           <p className="max-w-[260px] text-center text-[11px] text-negative">
             {hasOpenAIKey()
-              ? `3D 변환 실패: ${stylizeError}`
-              : '3D 변환은 OpenAI 키 설정이 필요해요.'}
+              ? `2D 변환 실패: ${stylizeError}`
+              : '2D 변환은 OpenAI 키 설정이 필요해요.'}
           </p>
         )}
       </div>
