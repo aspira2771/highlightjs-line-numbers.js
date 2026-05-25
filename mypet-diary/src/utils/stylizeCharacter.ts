@@ -11,13 +11,17 @@
 const ENDPOINT = 'https://api.openai.com/v1/images/edits';
 
 const PROMPT =
-  'Transform this pet into a cute 2D flat-illustration mascot character, in a ' +
-  'modern flat vector / sticker design style: simple clean flat shapes, solid ' +
-  'flat colors with little or no gradient, soft rounded forms, big simple ' +
-  'eyes, tiny minimal smile, friendly kawaii Korean-mascot vibe. Strictly 2D ' +
-  'flat artwork — no 3D rendering, no realistic texture, no drop shadows. ' +
-  'Keep the animal’s species, breed, color and markings recognizable. ' +
-  'Single character, centered, facing forward, full body, transparent background.';
+  'Redesign this pet as a simple, iconic 2D mascot in the minimalist flat style ' +
+  'of Korean city mascots (Seoul "Soul Friends" / Haechi). Heavily simplify and ' +
+  'abstract it into a few clean rounded geometric shapes — it should look like a ' +
+  'designed character, NOT a realistic drawing of the photo. Rules: flat solid ' +
+  'pastel colors only; NO outline or only an ultra-thin subtle line; very small ' +
+  'minimal dot or short-line eyes; tiny simple mouth; lots of negative space; ' +
+  'exaggerate just one or two cute signature traits of the animal (ears, tail, ' +
+  'spots, fang…) for personality. Charming, friendly, playful. Strictly flat 2D ' +
+  'vector art — no gradients, no shading, no texture, no drop shadow, no 3D. ' +
+  'Keep the species and main color recognizable but stylized. Single character, ' +
+  'centered, full body, generous margin, transparent background.';
 
 export function hasOpenAIKey(): boolean {
   return Boolean(import.meta.env.VITE_OPENAI_API_KEY);
