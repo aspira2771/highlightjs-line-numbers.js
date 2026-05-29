@@ -1,12 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { Calendar, Heart, Home, Notebook, User } from 'lucide-react';
+import { Footprints, Heart, Home, Notebook, User } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 const tabs = [
   { to: '/', label: '홈', icon: Home },
   { to: '/records', label: '기록', icon: Notebook },
-  { to: '/calendar', label: '캘린더', icon: Calendar },
   { to: '/community', label: '커뮤니티', icon: Heart },
+  { to: '/walk', label: '산책', icon: Footprints },
   { to: '/mypet', label: '마이펫', icon: User },
 ];
 

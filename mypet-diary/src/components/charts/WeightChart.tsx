@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { Weight } from 'lucide-react';
 import type { WeightRecord } from '@/types';
 import { EmptyState } from '@/components/common/Card';
 
@@ -19,7 +20,7 @@ export function WeightChart({ records }: Props) {
   if (records.length === 0) {
     return (
       <EmptyState
-        emoji="⚖️"
+        icon={<Weight size={26} />}
         title="체중 기록이 없어요"
         description="첫 체중을 기록하면 변화 그래프가 보여요."
       />

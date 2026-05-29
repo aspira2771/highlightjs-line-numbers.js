@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   addDays,
   addMonths,
+  differenceInCalendarDays,
   endOfMonth,
   format,
   isSameDay,
@@ -10,7 +11,14 @@ import {
   startOfWeek,
   subMonths,
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Stethoscope,
+  Sun,
+} from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
 import { Modal } from '@/components/common/Modal';
@@ -20,7 +28,10 @@ import { AddHospitalForm } from '@/features/hospital/AddHospitalForm';
 import { usePetStore } from '@/stores/petStore';
 import { useCareStore } from '@/stores/careStore';
 import { useRecordsStore } from '@/stores/recordsStore';
-import { CARE_ICONS, CARE_LABELS } from '@/utils/careLabels';
+import { SYMPTOM_LABELS } from '@/features/symptom/AddSymptomForm';
+import { PhotoAlbum } from '@/features/memory/PhotoAlbum';
+import { CARE_LABELS } from '@/utils/careLabels';
+import { CARE_ICON_COMPONENTS } from '@/utils/careIcons';
 import { cn } from '@/utils/cn';
 
 function buildMonthGrid(anchor: Date): Date[] {
@@ -32,24 +43,26 @@ function buildMonthGrid(anchor: Date): Date[] {
   return days;
 }
 
-export function CalendarPage() {
+export function CalendarPage({ embedded }: { embedded?: boolean }) {
   const activePet = usePetStore((s) =>
     s.pets.find((p) => p.id === s.activePetId),
   );
   const careItems = useCareStore((s) => s.items);
-  const hospitals = useRecordsStore((s) => s.hospitals);
-  const medications = useRecordsStore((s) => s.medications);
+  const records = useRecordsStore();
+  const hospitals = records.hospitals;
+  const medications = records.medications;
 
   const [anchor, setAnchor] = useState(new Date());
   const [selected, setSelected] = useState(new Date());
   const [open, setOpen] = useState(false);
 
   if (!activePet) {
+    if (embedded) return null;
     return (
       <div className="page">
         <PageHeader title="캘린더" />
         <EmptyState
-          emoji="📅"
+          icon={<CalendarDays size={26} />}
           title="등록된 반려동물이 없어요"
           description="마이펫 탭에서 먼저 등록해주세요."
         />
@@ -72,16 +85,56 @@ export function CalendarPage() {
         (isSameDay(parseISO(h.visitDate), date) ||
           (h.nextVisitDate && isSameDay(parseISO(h.nextVisitDate), date))),
     );
-    return { careOnDay, hospitalOnDay };
+    const photosOnDay = records.photos.filter(
+      (p) => p.petId === activePet.id && isSameDay(parseISO(p.takenAt), date),
+    );
+    return { careOnDay, hospitalOnDay, photosOnDay };
   };
 
   const { careOnDay, hospitalOnDay } = eventsForDay(selected);
 
-  return (
-    <div className="page">
-      <PageHeader title="캘린더" subtitle={`${activePet.name}의 일정`} />
-      <PetSwitcher />
+  // ── Vet report summary (recent vitals/symptoms) ──
+  const petWeights = records.weights
+    .filter((w) => w.petId === activePet.id)
+    .slice()
+    .sort((a, b) => a.recordedAt.localeCompare(b.recordedAt));
+  const latestWeight = petWeights[petWeights.length - 1];
+  const prevWeight = petWeights[petWeights.length - 2];
+  const weightDelta =
+    latestWeight && prevWeight
+      ? +(latestWeight.weight - prevWeight.weight).toFixed(2)
+      : null;
+  const recentSymptoms = records.symptoms.filter(
+    (s) =>
+      s.petId === activePet.id &&
+      differenceInCalendarDays(new Date(), parseISO(s.recordedAt)) <= 14,
+  );
+  const activeMeds = medications.filter(
+    (m) =>
+      m.petId === activePet.id &&
+      (!m.endDate || parseISO(m.endDate) >= new Date()),
+  );
 
+  // ── This month's care summary ──
+  const inThisMonth = (iso: string) => {
+    const d = parseISO(iso);
+    return d >= startOfMonth(anchor) && d <= endOfMonth(anchor);
+  };
+  const monthCare = careItems.filter(
+    (c) => c.petId === activePet.id && inThisMonth(c.scheduledAt),
+  );
+  const monthDone = monthCare.filter((c) => c.completed).length;
+  const completionRate =
+    monthCare.length > 0 ? Math.round((monthDone / monthCare.length) * 100) : 0;
+  const monthWalks = records.walks.filter(
+    (w) => w.petId === activePet.id && inThisMonth(w.startedAt),
+  ).length;
+  const monthTreats = records.treats.filter(
+    (t) => t.petId === activePet.id && inThisMonth(t.recordedAt),
+  ).length;
+
+  const content = (
+    <>
       <Card>
         <div className="mb-3 flex items-center justify-between">
           <button
@@ -110,8 +163,12 @@ export function CalendarPage() {
             const inMonth =
               day >= startOfMonth(anchor) && day <= endOfMonth(anchor);
             const isSelected = isSameDay(day, selected);
-            const { careOnDay: cs, hospitalOnDay: hs } = eventsForDay(day);
-            const hasEvent = cs.length > 0 || hs.length > 0;
+            const {
+              careOnDay: cs,
+              hospitalOnDay: hs,
+              photosOnDay: ps,
+            } = eventsForDay(day);
+            const hasEvent = cs.length > 0 || hs.length > 0 || ps.length > 0;
             return (
               <button
                 key={day.toISOString()}
@@ -154,15 +211,19 @@ export function CalendarPage() {
       >
         {careOnDay.length === 0 && hospitalOnDay.length === 0 ? (
           <EmptyState
-            emoji="🌤️"
+            icon={<Sun size={26} />}
             title="이날은 일정이 없어요"
             description="여유로운 하루를 보내세요."
           />
         ) : (
           <ul className="space-y-2">
-            {careOnDay.map((item) => (
+            {careOnDay.map((item) => {
+              const Icon = CARE_ICON_COMPONENTS[item.type];
+              return (
               <li key={item.id} className="flex items-center gap-3">
-                <span className="text-xl">{CARE_ICONS[item.type]}</span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-soft bg-gray-100 text-gray-600">
+                  <Icon size={18} />
+                </span>
                 <div>
                   <p className="text-sm font-semibold">
                     {item.title || CARE_LABELS[item.type]}
@@ -173,10 +234,13 @@ export function CalendarPage() {
                   </p>
                 </div>
               </li>
-            ))}
+              );
+            })}
             {hospitalOnDay.map((h) => (
               <li key={h.id} className="flex items-center gap-3">
-                <span className="text-xl">🏥</span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-soft bg-gray-100 text-gray-600">
+                  <Stethoscope size={18} />
+                </span>
                 <div>
                   <p className="text-sm font-semibold">{h.hospitalName}</p>
                   <p className="text-xs text-muted">
@@ -190,7 +254,72 @@ export function CalendarPage() {
         )}
       </Card>
 
+      <Card className="mt-4" title={`${monthLabel} 케어 요약`}>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-soft bg-gray-100 p-3 text-center">
+            <p className="text-xs text-muted">케어 완료율</p>
+            <p className="text-xl font-bold text-primary">{completionRate}%</p>
+            <p className="text-[11px] text-muted">
+              {monthDone}/{monthCare.length}
+            </p>
+          </div>
+          <div className="rounded-soft bg-gray-100 p-3 text-center">
+            <p className="text-xs text-muted">산책</p>
+            <p className="text-xl font-bold">{monthWalks}회</p>
+          </div>
+          <div className="rounded-soft bg-gray-100 p-3 text-center">
+            <p className="text-xs text-muted">간식</p>
+            <p className="text-xl font-bold">{monthTreats}회</p>
+          </div>
+          <div className="rounded-soft bg-gray-100 p-3 text-center">
+            <p className="text-xs text-muted">현재 체중</p>
+            <p className="text-xl font-bold">
+              {latestWeight ? `${latestWeight.weight}kg` : '-'}
+            </p>
+            {weightDelta !== null && weightDelta !== 0 && (
+              <p className="text-[11px] text-muted">
+                {weightDelta > 0 ? '+' : ''}
+                {weightDelta}kg
+              </p>
+            )}
+          </div>
+        </div>
+      </Card>
+
+      <PhotoAlbum petId={activePet.id} date={selected} />
+
       <Card className="mt-4" title="병원 리포트">
+        {/* Recent vitals/symptoms summary for vet visits. */}
+        <div className="mb-3 space-y-1.5 rounded-soft bg-primary-50 p-3 text-xs">
+          <p>
+            <span className="text-muted">최근 체중: </span>
+            {latestWeight
+              ? `${latestWeight.weight}kg${
+                  weightDelta !== null && weightDelta !== 0
+                    ? ` (${weightDelta > 0 ? '+' : ''}${weightDelta}kg)`
+                    : ''
+                }`
+              : '기록 없음'}
+          </p>
+          <p>
+            <span className="text-muted">복용 중인 약: </span>
+            {activeMeds.length > 0
+              ? activeMeds.map((m) => m.name).join(', ')
+              : '없음'}
+          </p>
+          <p>
+            <span className="text-muted">최근 2주 증상: </span>
+            {recentSymptoms.length > 0
+              ? Array.from(
+                  new Set(
+                    recentSymptoms.flatMap((s) =>
+                      s.kinds.map((k) => SYMPTOM_LABELS[k]),
+                    ),
+                  ),
+                ).join(', ')
+              : '없음'}
+          </p>
+        </div>
         {hospitals.filter((h) => h.petId === activePet.id).length === 0 ? (
           <p className="text-sm text-muted">
             아직 진료 기록이 없어요. 방문 후 기록해두면 다음 진료에 도움이 돼요.
@@ -233,6 +362,15 @@ export function CalendarPage() {
         )}
         <AddHospitalForm petId={activePet.id} onClose={() => setOpen(false)} />
       </Modal>
+    </>
+  );
+
+  if (embedded) return content;
+  return (
+    <div className="page">
+      <PageHeader title="캘린더" subtitle={`${activePet.name}의 일정`} />
+      <PetSwitcher />
+      {content}
     </div>
   );
 }

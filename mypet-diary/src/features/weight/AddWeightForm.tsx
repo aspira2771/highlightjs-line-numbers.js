@@ -3,28 +3,36 @@ import { Button } from '@/components/common/Button';
 import { Input, Textarea } from '@/components/common/Input';
 import { useRecordsStore } from '@/stores/recordsStore';
 import { toISODateTime } from '@/utils/date';
+import type { WeightRecord } from '@/types';
 
 interface Props {
   petId: string;
+  editing?: WeightRecord | null;
   onClose?: () => void;
 }
 
-export function AddWeightForm({ petId, onClose }: Props) {
+export function AddWeightForm({ petId, editing, onClose }: Props) {
   const addWeight = useRecordsStore((s) => s.addWeight);
-  const [weight, setWeight] = useState('');
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [note, setNote] = useState('');
+  const updateWeight = useRecordsStore((s) => s.updateWeight);
+  const [weight, setWeight] = useState(
+    editing ? String(editing.weight) : '',
+  );
+  const [date, setDate] = useState(() =>
+    (editing?.recordedAt ?? new Date().toISOString()).slice(0, 10),
+  );
+  const [note, setNote] = useState(editing?.note ?? '');
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const value = Number(weight);
     if (!value || value <= 0) return;
-    addWeight({
-      petId,
+    const fields = {
       weight: value,
       recordedAt: new Date(`${date}T12:00:00`).toISOString() || toISODateTime(),
       note: note.trim() || undefined,
-    });
+    };
+    if (editing) updateWeight(editing.id, fields);
+    else addWeight({ petId, ...fields });
     onClose?.();
   };
 
@@ -55,7 +63,7 @@ export function AddWeightForm({ petId, onClose }: Props) {
         onChange={(e) => setNote(e.target.value)}
       />
       <Button type="submit" block>
-        기록하기
+        {editing ? '수정 저장' : '기록하기'}
       </Button>
     </form>
   );

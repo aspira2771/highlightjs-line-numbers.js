@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Flame, Sparkles, BellRing } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Plus, Flame, Sparkles, BellRing, PawPrint } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Card, EmptyState } from '@/components/common/Card';
@@ -20,12 +20,21 @@ export function HomePage() {
   const activePetId = usePetStore((s) => s.activePetId);
   const activePet = pets.find((p) => p.id === activePetId) ?? null;
 
-  const todayItems = useCareStore((s) =>
-    activePet ? s.todayItemsForPet(activePet.id) : [],
+  const careItems = useCareStore((s) => s.items);
+  const todayItemsForPet = useCareStore((s) => s.todayItemsForPet);
+  const todayItems = useMemo(
+    () => (activePet ? todayItemsForPet(activePet.id) : []),
+    [careItems, activePet, todayItemsForPet],
   );
   const toggle = useCareStore((s) => s.toggle);
   const remove = useCareStore((s) => s.remove);
   const addItem = useCareStore((s) => s.addItem);
+  const materializeRecurring = useCareStore((s) => s.materializeRecurring);
+
+  // Spawn today's recurring care occurrences when the pet's home opens.
+  useEffect(() => {
+    if (activePet) materializeRecurring(activePet.id);
+  }, [activePet?.id, materializeRecurring]);
 
   const award = usePointsStore((s) => s.award);
   const markStreak = usePointsStore((s) => s.markStreak);
@@ -42,7 +51,7 @@ export function HomePage() {
     return (
       <div className="page">
         <EmptyState
-          emoji="🐾"
+          icon={<PawPrint size={26} />}
           title="아직 등록된 반려동물이 없어요"
           description="마이펫 탭에서 첫 친구를 만나러 가요!"
           action={
@@ -88,6 +97,7 @@ export function HomePage() {
         <div className="flex flex-col items-center text-center">
           <Character
             photoUrl={activePet.photoUrl}
+            characterUrl={activePet.characterUrl}
             species={activePet.species}
             template={activePet.characterTemplate}
             mood={mood}

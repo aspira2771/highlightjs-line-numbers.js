@@ -1,9 +1,12 @@
+import { Droplet, Leaf, Moon, Sparkles, type LucideIcon } from 'lucide-react';
 import type { CharacterMood, CharacterTemplate, PetSpecies } from '@/types';
-import { SPECIES_EMOJI } from '@/utils/careLabels';
+import { SPECIES_ICON_COMPONENTS } from '@/utils/careIcons';
 import { cn } from '@/utils/cn';
 
 interface CharacterProps {
   photoUrl?: string;
+  /** AI-generated 2D character image; preferred over the raw photo when present. */
+  characterUrl?: string;
   species: PetSpecies;
   template?: CharacterTemplate;
   mood?: CharacterMood;
@@ -11,11 +14,11 @@ interface CharacterProps {
   animated?: boolean;
 }
 
-const MOOD_DECORATION: Record<CharacterMood, string> = {
-  happy: '✨',
-  sad: '💧',
-  calm: '🌿',
-  sleepy: '💤',
+const MOOD_ICON: Record<CharacterMood, LucideIcon> = {
+  happy: Sparkles,
+  sad: Droplet,
+  calm: Leaf,
+  sleepy: Moon,
 };
 
 const TEMPLATE_BG: Record<CharacterTemplate, string> = {
@@ -34,12 +37,17 @@ const SIZE_CLASS = {
 
 export function Character({
   photoUrl,
+  characterUrl,
   species,
   template = 'classic',
   mood = 'happy',
   size = 'md',
   animated = true,
 }: CharacterProps) {
+  const imageSrc = characterUrl || photoUrl;
+  const SpeciesIcon = SPECIES_ICON_COMPONENTS[species];
+  const MoodIcon = MOOD_ICON[mood];
+  const iconSize = size === 'lg' ? 72 : size === 'md' ? 48 : 30;
   return (
     <div className="relative inline-flex items-center justify-center">
       <div
@@ -50,21 +58,26 @@ export function Character({
           animated && 'animate-bounceSoft',
         )}
       >
-        {photoUrl ? (
+        {imageSrc ? (
           <img
-            src={photoUrl}
+            src={imageSrc}
             alt="pet"
             className="h-full w-full rounded-full object-cover"
           />
         ) : (
-          <span aria-hidden>{SPECIES_EMOJI[species]}</span>
+          <SpeciesIcon
+            size={iconSize}
+            strokeWidth={1.5}
+            className="text-gray-400"
+            aria-hidden
+          />
         )}
       </div>
       <span
-        className="absolute -right-1 -top-1 select-none text-xl"
+        className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white text-gray-600 shadow-soft"
         aria-label={`mood: ${mood}`}
       >
-        {MOOD_DECORATION[mood]}
+        <MoodIcon size={13} />
       </span>
     </div>
   );

@@ -110,6 +110,13 @@ export interface HospitalRecord {
   attachments?: string[];
 }
 
+/** A single GPS sample recorded along a walk. */
+export interface GeoPoint {
+  lat: number;
+  lng: number;
+  t: number; // epoch ms
+}
+
 export interface WalkRecord {
   id: string;
   petId: string;
@@ -118,6 +125,8 @@ export interface WalkRecord {
   hadBowelMovement?: boolean;
   weather?: string;
   note?: string;
+  path?: GeoPoint[]; // GPS route captured during live tracking
+  distanceMeters?: number; // total distance derived from path
 }
 
 export interface MealRecord {
@@ -137,6 +146,44 @@ export interface ReptileEnvironment {
   temperature?: number;
   sheddingStatus?: 'normal' | 'abnormal' | 'in_progress';
   note?: string;
+}
+
+/** Observed abnormality note — caretaker observation, never a diagnosis. */
+export type SymptomKind =
+  | 'appetite'
+  | 'vomiting'
+  | 'diarrhea'
+  | 'lethargy'
+  | 'scratching'
+  | 'coughing'
+  | 'shedding'
+  | 'stool';
+
+export interface SymptomNote {
+  id: string;
+  petId: string;
+  recordedAt: string;
+  kinds: SymptomKind[];
+  severity?: 'mild' | 'moderate' | 'severe';
+  note?: string;
+}
+
+export interface TreatRecord {
+  id: string;
+  petId: string;
+  recordedAt: string;
+  name?: string;
+  amount?: string;
+  note?: string;
+}
+
+/** A photo in the calendar photo album / memory diary. */
+export interface PhotoMemory {
+  id: string;
+  petId: string;
+  photoUrl: string; // downscaled data URL
+  takenAt: string; // ISO date
+  caption?: string;
 }
 
 export interface PointTransaction {

@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react';
+import { Sparkles } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Input, Select, Textarea } from '@/components/common/Input';
 import {
   CHARACTER_TEMPLATES,
   Character,
 } from '@/components/character/Character';
+import { generateCharacter } from '@/features/pet/generateCharacter';
 import { SPECIES_LABELS } from '@/utils/careLabels';
 import type {
   CharacterTemplate,
@@ -21,6 +23,7 @@ interface Props {
     birthDate?: string;
     weight?: number;
     photoUrl: string;
+    characterUrl?: string;
     characterTemplate: CharacterTemplate;
     notes?: string;
   }) => void;
@@ -47,16 +50,35 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
     initial?.weight ? String(initial.weight) : '',
   );
   const [photoUrl, setPhotoUrl] = useState(initial?.photoUrl ?? '');
+  const [characterUrl, setCharacterUrl] = useState(initial?.characterUrl ?? '');
   const [characterTemplate, setCharacterTemplate] = useState<CharacterTemplate>(
     (initial?.characterTemplate as CharacterTemplate) ?? 'classic',
   );
   const [notes, setNotes] = useState(initial?.notes ?? '');
   const [error, setError] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
 
   const handlePhoto = async (file?: File) => {
     if (!file) return;
     const dataUrl = await fileToDataUrl(file);
     setPhotoUrl(dataUrl);
+    setCharacterUrl(''); // new photo invalidates a previous AI character
+    setGenError(null);
+  };
+
+  const handleGenerate = async () => {
+    if (!photoUrl || generating) return;
+    setGenerating(true);
+    setGenError(null);
+    try {
+      const result = await generateCharacter(photoUrl, species);
+      setCharacterUrl(result);
+    } catch (err) {
+      setGenError(err instanceof Error ? err.message : 'AI 생성에 실패했어요.');
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const submit = (e: FormEvent) => {
@@ -72,6 +94,7 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
       birthDate: birthDate || undefined,
       weight: weight ? Number(weight) : undefined,
       photoUrl,
+      characterUrl: characterUrl || undefined,
       characterTemplate,
       notes: notes.trim() || undefined,
     });
@@ -82,20 +105,52 @@ export function PetForm({ initial, onSubmit, submitLabel = '저장하기' }: Pro
       <div className="flex flex-col items-center gap-3">
         <Character
           photoUrl={photoUrl}
+          characterUrl={characterUrl || undefined}
           species={species}
           template={characterTemplate}
           mood="happy"
           size="md"
         />
-        <label className="cursor-pointer rounded-pill bg-primary-50 px-4 py-2 text-xs font-semibold text-primary-500">
-          사진 업로드
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => handlePhoto(e.target.files?.[0])}
-          />
-        </label>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <label className="cursor-pointer rounded-pill bg-primary-50 px-4 py-2 text-xs font-semibold text-primary-500">
+            사진 업로드
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handlePhoto(e.target.files?.[0])}
+            />
+          </label>
+          {photoUrl && (
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              leftIcon={<Sparkles size={14} />}
+              onClick={handleGenerate}
+              disabled={generating}
+            >
+              {generating ? '캐릭터 만드는 중…' : 'AI 캐릭터 만들기'}
+            </Button>
+          )}
+          {characterUrl && (
+            <button
+              type="button"
+              className="text-xs text-muted underline"
+              onClick={() => setCharacterUrl('')}
+            >
+              원본 사진 사용
+            </button>
+          )}
+        </div>
+        {generating && (
+          <p className="text-xs text-muted">
+            사진을 2D 캐릭터로 바꾸는 중이에요. 10~20초 정도 걸려요.
+          </p>
+        )}
+        {genError && (
+          <p className="max-w-xs text-center text-xs text-red-500">{genError}</p>
+        )}
       </div>
 
       <Input

@@ -1,6 +1,7 @@
 import { Check, Trash2 } from 'lucide-react';
 import type { CareItem } from '@/types';
-import { CARE_ICONS, CARE_LABELS } from '@/utils/careLabels';
+import { CARE_LABELS } from '@/utils/careLabels';
+import { CARE_ICON_COMPONENTS } from '@/utils/careIcons';
 import { formatKoreanTime } from '@/utils/date';
 import { cn } from '@/utils/cn';
 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function CareRow({ item, onToggle, onRemove }: Props) {
+  const Icon = CARE_ICON_COMPONENTS[item.type];
   return (
     <li
       className={cn(
@@ -32,8 +34,8 @@ export function CareRow({ item, onToggle, onRemove }: Props) {
       </button>
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-xl" aria-hidden>
-            {CARE_ICONS[item.type]}
+          <span className="flex h-7 w-7 items-center justify-center rounded-soft bg-gray-100 text-gray-600">
+            <Icon size={15} />
           </span>
           <p
             className={cn(
@@ -44,7 +46,7 @@ export function CareRow({ item, onToggle, onRemove }: Props) {
             {item.title || CARE_LABELS[item.type]}
           </p>
         </div>
-        <p className="ml-7 text-xs text-muted">
+        <p className="ml-9 text-xs text-muted">
           {formatKoreanTime(item.scheduledAt)}
           {item.recurrence && ' · 반복'}
         </p>

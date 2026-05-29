@@ -2,30 +2,37 @@ import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/common/Button';
 import { Input, Select, Textarea } from '@/components/common/Input';
 import { useRecordsStore } from '@/stores/recordsStore';
-import type { Recurrence } from '@/types';
+import type { Medication, Recurrence } from '@/types';
 
 interface Props {
   petId: string;
+  editing?: Medication | null;
   onClose?: () => void;
 }
 
-export function AddMedicationForm({ petId, onClose }: Props) {
+export function AddMedicationForm({ petId, editing, onClose }: Props) {
   const addMedication = useRecordsStore((s) => s.addMedication);
-  const [name, setName] = useState('');
-  const [dosage, setDosage] = useState('');
-  const [startDate, setStartDate] = useState(
-    () => new Date().toISOString().slice(0, 10),
+  const updateMedication = useRecordsStore((s) => s.updateMedication);
+  const [name, setName] = useState(editing?.name ?? '');
+  const [dosage, setDosage] = useState(editing?.dosage ?? '');
+  const [startDate, setStartDate] = useState(() =>
+    (editing?.startDate ?? new Date().toISOString()).slice(0, 10),
   );
-  const [endDate, setEndDate] = useState('');
-  const [pattern, setPattern] = useState<Recurrence['pattern']>('daily');
-  const [interval, setInterval] = useState('1');
-  const [purpose, setPurpose] = useState('');
+  const [endDate, setEndDate] = useState(
+    editing?.endDate ? editing.endDate.slice(0, 10) : '',
+  );
+  const [pattern, setPattern] = useState<Recurrence['pattern']>(
+    editing?.recurrence.pattern ?? 'daily',
+  );
+  const [interval, setInterval] = useState(
+    String(editing?.recurrence.interval ?? 1),
+  );
+  const [purpose, setPurpose] = useState(editing?.purpose ?? '');
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    addMedication({
-      petId,
+    const fields = {
       name: name.trim(),
       dosage: dosage.trim() || undefined,
       startDate: new Date(`${startDate}T08:00:00`).toISOString(),
@@ -37,7 +44,9 @@ export function AddMedicationForm({ petId, onClose }: Props) {
         interval: Math.max(1, Number(interval) || 1),
       },
       purpose: purpose.trim() || undefined,
-    });
+    };
+    if (editing) updateMedication(editing.id, fields);
+    else addMedication({ petId, ...fields });
     onClose?.();
   };
 
@@ -104,7 +113,7 @@ export function AddMedicationForm({ petId, onClose }: Props) {
         onChange={(e) => setPurpose(e.target.value)}
       />
       <Button type="submit" block>
-        약 등록
+        {editing ? '수정 저장' : '약 등록'}
       </Button>
     </form>
   );

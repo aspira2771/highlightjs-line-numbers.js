@@ -2,31 +2,42 @@ import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/common/Button';
 import { Input, Select } from '@/components/common/Input';
 import { useRecordsStore } from '@/stores/recordsStore';
-import type { Recurrence } from '@/types';
+import type { Recurrence, Supplement } from '@/types';
 
 interface Props {
   petId: string;
+  editing?: Supplement | null;
   onClose?: () => void;
 }
 
-export function AddSupplementForm({ petId, onClose }: Props) {
+export function AddSupplementForm({ petId, editing, onClose }: Props) {
   const addSupplement = useRecordsStore((s) => s.addSupplement);
-  const [name, setName] = useState('');
-  const [pattern, setPattern] = useState<Recurrence['pattern']>('daily');
-  const [interval, setInterval] = useState('1');
-  const [remaining, setRemaining] = useState('');
-  const [threshold, setThreshold] = useState('5');
+  const updateSupplement = useRecordsStore((s) => s.updateSupplement);
+  const [name, setName] = useState(editing?.name ?? '');
+  const [pattern, setPattern] = useState<Recurrence['pattern']>(
+    editing?.recurrence.pattern ?? 'daily',
+  );
+  const [interval, setInterval] = useState(
+    String(editing?.recurrence.interval ?? 1),
+  );
+  const [remaining, setRemaining] = useState(
+    editing?.remainingCount != null ? String(editing.remainingCount) : '',
+  );
+  const [threshold, setThreshold] = useState(
+    editing?.alertThreshold != null ? String(editing.alertThreshold) : '5',
+  );
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    addSupplement({
-      petId,
+    const fields = {
       name: name.trim(),
       recurrence: { pattern, interval: Math.max(1, Number(interval) || 1) },
       remainingCount: remaining ? Number(remaining) : undefined,
       alertThreshold: threshold ? Number(threshold) : undefined,
-    });
+    };
+    if (editing) updateSupplement(editing.id, fields);
+    else addSupplement({ petId, ...fields });
     onClose?.();
   };
 
@@ -81,7 +92,7 @@ export function AddSupplementForm({ petId, onClose }: Props) {
         />
       </div>
       <Button type="submit" block>
-        영양제 등록
+        {editing ? '수정 저장' : '영양제 등록'}
       </Button>
     </form>
   );

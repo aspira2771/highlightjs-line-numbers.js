@@ -2,35 +2,49 @@ import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/common/Button';
 import { Input, Select, Textarea } from '@/components/common/Input';
 import { useRecordsStore } from '@/stores/recordsStore';
+import type { WalkRecord } from '@/types';
 
 interface Props {
   petId: string;
+  editing?: WalkRecord | null;
   onClose?: () => void;
 }
 
-export function AddWalkForm({ petId, onClose }: Props) {
+function initialBowel(editing?: WalkRecord | null): 'yes' | 'no' | 'unknown' {
+  if (editing?.hadBowelMovement === true) return 'yes';
+  if (editing?.hadBowelMovement === false) return 'no';
+  return 'unknown';
+}
+
+export function AddWalkForm({ petId, editing, onClose }: Props) {
   const addWalk = useRecordsStore((s) => s.addWalk);
-  const [duration, setDuration] = useState('30');
-  const [startedAt, setStartedAt] = useState(
-    () => new Date().toISOString().slice(0, 16),
+  const updateWalk = useRecordsStore((s) => s.updateWalk);
+  const [duration, setDuration] = useState(
+    editing ? String(editing.durationMinutes) : '30',
   );
-  const [bowel, setBowel] = useState<'yes' | 'no' | 'unknown'>('unknown');
-  const [weather, setWeather] = useState('');
-  const [note, setNote] = useState('');
+  const [startedAt, setStartedAt] = useState(() =>
+    (editing?.startedAt ?? new Date().toISOString()).slice(0, 16),
+  );
+  const [bowel, setBowel] = useState<'yes' | 'no' | 'unknown'>(
+    initialBowel(editing),
+  );
+  const [weather, setWeather] = useState(editing?.weather ?? '');
+  const [note, setNote] = useState(editing?.note ?? '');
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const minutes = Number(duration);
     if (!minutes || minutes <= 0) return;
-    addWalk({
-      petId,
+    const fields = {
       startedAt: new Date(startedAt).toISOString(),
       durationMinutes: minutes,
       hadBowelMovement:
         bowel === 'yes' ? true : bowel === 'no' ? false : undefined,
       weather: weather.trim() || undefined,
       note: note.trim() || undefined,
-    });
+    };
+    if (editing) updateWalk(editing.id, fields);
+    else addWalk({ petId, ...fields });
     onClose?.();
   };
 
@@ -77,7 +91,7 @@ export function AddWalkForm({ petId, onClose }: Props) {
         onChange={(e) => setNote(e.target.value)}
       />
       <Button type="submit" block>
-        산책 기록
+        {editing ? '수정 저장' : '산책 기록'}
       </Button>
     </form>
   );
